@@ -1,30 +1,83 @@
-// admin.js - Simple login system with localStorage
+// --- Admin Login System ---
 
-const DEFAULT_ADMIN = {
-  username: "admin",
-  password: "12345"
-};
+// Default Admin (You can remove or add more in dashboard)
+let admins = JSON.parse(localStorage.getItem("admins")) || [
+  { username: "admin", password: "12345" }
+];
 
-// Save default admin if not exists
-if (!localStorage.getItem("admin_users")) {
-  localStorage.setItem("admin_users", JSON.stringify([DEFAULT_ADMIN]));
-}
-
-function login(username, password) {
-  const admins = JSON.parse(localStorage.getItem("admin_users")) || [];
-  return admins.find(a => a.username === username && a.password === password);
-}
-
-document.getElementById("admin-login").addEventListener("submit", function(e) {
-  e.preventDefault();
-
+// LOGIN FUNCTION
+function loginAdmin() {
   const user = document.getElementById("username").value.trim();
   const pass = document.getElementById("password").value.trim();
 
-  if (login(user, pass)) {
+  const found = admins.find(a => a.username === user && a.password === pass);
+
+  if (found) {
     localStorage.setItem("admin_logged", "true");
     window.location.href = "dashboard.html";
   } else {
-    document.getElementById("error").classList.remove("hidden");
+    alert("Invalid Username or Password!");
+  }
+}
+
+// CHECK LOGIN STATUS
+function checkLogin() {
+  if (!localStorage.getItem("admin_logged")) {
+    window.location.href = "admin.html";
+  }
+}
+
+// LOGOUT
+function logout() {
+  localStorage.removeItem("admin_logged");
+  window.location.href = "admin.html";
+}
+
+// ADD NEW ADMIN (From Dashboard Modal)
+function addNewAdmin(username, password) {
+  admins.push({ username, password });
+  localStorage.setItem("admins", JSON.stringify(admins));
+  loadAdmins();
+}
+
+// Load Admins in Dashboard
+function loadAdmins() {
+  const list = document.getElementById("admin-list");
+  if (!list) return;
+
+  list.innerHTML = "";
+  admins.forEach((a, index) => {
+    const li = document.createElement("li");
+    li.textContent = `${index + 1}. ${a.username}`;
+    list.appendChild(li);
+  });
+}
+
+// Modal Controls (Dashboard)
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modal");
+  const addAdminBtn = document.getElementById("add-admin-btn");
+  const saveBtn = document.getElementById("save-admin");
+
+  if (addAdminBtn) {
+    addAdminBtn.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+    });
+  }
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const user = document.getElementById("new-username").value.trim();
+      const pass = document.getElementById("new-password").value.trim();
+
+      if (user.length < 3 || pass.length < 3) {
+        alert("Please enter valid information!");
+        return;
+      }
+
+      addNewAdmin(user, pass);
+      alert("New Admin Added!");
+      modal.classList.add("hidden");
+    });
   }
 });
