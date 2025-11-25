@@ -15,7 +15,7 @@
       <div class="flex items-center gap-4">
         <a href="admin.html" class="flex items-center gap-3">
           <img id="site-logo" src="logo.png" alt="Ehsan Collection" class="h-12 w-auto"/>
-          <span class="text-2xl font-bold">Ehsan Collection</span>
+          <span class="text-3xl font-extrabold tracking-wide">Ehsan Collection</span>
         </a>
       </div>
 
@@ -39,6 +39,14 @@
     <!-- Products grid -->
     <section id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></section>
 
+    <!-- Bank Accounts Display -->
+    <section id="bank-display" class="bg-white p-6 rounded-xl shadow mt-8">
+      <h2 class="text-2xl font-bold mb-4 text-center">Bank Accounts</h2>
+      <div id="bank-list" class="space-y-4 text-center text-gray-700">
+        <!-- Filled dynamically from admin panel -->
+      </div>
+    </section>
+
     <!-- Checkout & info area -->
     <section id="contact" class="mt-8 text-center text-gray-600">
       <p>Questions? WhatsApp: <a href="https://wa.me/923018067880" target="_blank" rel="noopener" class="text-green-600 font-semibold">+92 301 8067880</a></p>
@@ -53,5 +61,23 @@
 
   <!-- Cart slideover (built by main.js) -->
   <script src="main.js"></script>
+  <script>
+    // Load bank accounts from localStorage
+    function loadBanks() {
+      const bankList = document.getElementById('bank-list');
+      const banks = JSON.parse(localStorage.getItem('bank_accounts')) || [];
+
+      bankList.innerHTML = banks.length === 0
+        ? '<p class="text-gray-500">No bank accounts added yet.</p>'
+        : banks.map(b => `
+          <div class='p-4 border rounded-lg shadow-sm'>
+            <p><strong>Bank:</strong> ${b.bank}</p>
+            <p><strong>Account No:</strong> ${b.account}</p>
+            <p><strong>IBAN:</strong> ${b.iban}</p>
+          </div>
+        `).join('');
+    }
+    loadBanks();
+  </script>
 </body>
 </html>
