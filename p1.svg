@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200">
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <rect x="50" y="50" width="1100" height="900" fill="#fff" stroke="#e6edf3" stroke-width="8" rx="24"/>
+  <text x="80" y="300" font-family="Arial" font-size="80" fill="#0b74da">Ehsan Collection</text>
+  <text x="80" y="420" font-family="Arial" font-size="60" fill="#374151">Shirt</text>
+  <text x="80" y="520" font-family="Arial" font-size="40" fill="#6b7280">Product 1</text>
+</svg>
