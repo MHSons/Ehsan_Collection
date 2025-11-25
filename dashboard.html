@@ -1,45 +1,36 @@
-<!-- dashboard.html -->
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Admin Dashboard</title>
-<link rel="stylesheet" href="dashboard.css"/></head><body>
-<div class="sidebar">
-  <h2>Admin Panel</h2>
-  <a href="#" id="nav-dashboard">Dashboard</a>
-  <a href="#" id="nav-products">Products</a>
-  <a href="#" id="nav-orders">Orders</a>
-  <a href="#" id="nav-banks">Banks</a>
-  <a href="#" id="add-admin-btn">Add Admin</a>
-  <a href="#" id="logout-btn">Logout</a>
-</div>
-
-<div class="dashboard-content">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <h1>Admin Dashboard</h1>
-    <div id="admin-info"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard - Orders</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a href="index.html">Storefront</a>
+    <a id="export-csv" href="#">Export Orders CSV</a>
+    <a id="logout-btn" href="#">Logout</a>
   </div>
 
-  <div class="card" id="products-section">
-    <h2>Products</h2>
-    <button id="new-product" class="btn" style="margin-bottom:12px">Add Product</button>
-    <div id="product-list"></div>
+  <div class="dashboard-content">
+    <h1>Orders</h1>
+    <div class="card">
+      <table class="table" id="orders-table">
+        <thead>
+          <tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Total (PKR)</th><th>Status</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Order Details</h2>
+      <pre id="order-detail" class="p-3 bg-gray-50 rounded"></pre>
+    </div>
   </div>
 
-  <div class="card" id="orders-section">
-    <h2>Orders</h2>
-    <div id="orders-list"></div>
-    <button id="export-orders" class="btn" style="margin-top:8px">Export Orders (CSV)</button>
-  </div>
-
-  <div class="card" id="banks-section">
-    <h2>Banks</h2>
-    <button id="add-bank" class="btn" style="margin-bottom:12px">Add Bank</button>
-    <div id="bank-list"></div>
-  </div>
-</div>
-
-<!-- Modals -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content" id="modal-content"></div>
-</div>
-
-<script src="dashboard.js"></script>
-</body></html>
+  <script src="dashboard.js"></script>
+</body>
+</html>
