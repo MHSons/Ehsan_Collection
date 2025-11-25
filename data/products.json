@@ -1,0 +1,35 @@
+[
+  {
+    "id": "p1",
+    "name": "Ehsan Shirt",
+    "price": 1200,
+    "currency": "PKR",
+    "sku": "ESH-TSHIRT-01",
+    "images": ["images/product1.jpg","images/product1-2.jpg"],
+    "description": "High quality cotton shirt. Available in S/M/L.",
+    "category": "Clothing",
+    "stock": 20
+  },
+  {
+    "id": "p2",
+    "name": "Ehsan Shawl",
+    "price": 850,
+    "currency": "PKR",
+    "sku": "ESH-SHAWL-01",
+    "images": ["images/product2.jpg"],
+    "description": "Warm shawl, hand-finished edges.",
+    "category": "Accessories",
+    "stock": 15
+  },
+  {
+    "id": "p3",
+    "name": "Market Poster",
+    "price": 600,
+    "currency": "PKR",
+    "sku": "ESH-POSTER-01",
+    "images": ["images/poster1.jpg"],
+    "description": "Decor poster for storefronts or gifts.",
+    "category": "Decor",
+    "stock": 50
+  }
+]
