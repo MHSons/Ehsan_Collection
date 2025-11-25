@@ -1,81 +1,104 @@
-// main.js
+// main.js — products, cart, checkout & WhatsApp order flow
+// Make sure product images are in assets/ (assets/product1.jpg etc.) and logo.png sits in project root
+
+const WHATSAPP_NUMBER = "923018067880"; // +92 301 8067880 (without +)
+const CART_KEY = "ehsan_cart_v1";
+const ORDERS_KEY = "ehsan_orders_v1";
+
+// Sample product list — you can edit/add from admin in the future (for now edit this array or add admin UI)
 const PRODUCTS = [
-  { id:'p1', title:'Classic Cotton Shirt', price:2499, currency:'PKR', image:'assets/product1.jpg', desc:'Comfortable cotton shirt' },
-  { id:'p2', title:'Formal Men Watch', price:4999, currency:'PKR', image:'assets/product2.jpg', desc:'Elegant design' },
-  { id:'p3', title:'Wireless Earbuds', price:3999, currency:'PKR', image:'assets/product3.jpg', desc:'Great sound' },
-  { id:'p4', title:'Running Sneakers', price:3599, currency:'PKR', image:'assets/product4.jpg', desc:'Comfortable sole' },
-  { id:'p5', title:'Stylish Backpack', price:2799, currency:'PKR', image:'assets/product5.jpg', desc:'Water-resistant' },
-  { id:'p6', title:'Sunglasses', price:1299, currency:'PKR', image:'assets/product6.jpg', desc:'UV protected' }
+  { id: "p1", title: "Classic Cotton Shirt", price: 2499, currency: "PKR", image: "assets/product1.jpg", desc: "Comfortable cotton shirt — perfect for daily wear." },
+  { id: "p2", title: "Formal Men Watch", price: 4999, currency: "PKR", image: "assets/product2.jpg", desc: "Elegant design with leather strap." },
+  { id: "p3", title: "Wireless Earbuds", price: 3999, currency: "PKR", image: "assets/product3.jpg", desc: "Long battery life and great sound." },
+  { id: "p4", title: "Running Sneakers", price: 3599, currency: "PKR", image: "assets/product4.jpg", desc: "Breathable material, comfortable sole." },
+  { id: "p5", title: "Stylish Backpack", price: 2799, currency: "PKR", image: "assets/product5.jpg", desc: "Water-resistant and roomy." },
+  { id: "p6", title: "Sunglasses", price: 1299, currency: "PKR", image: "assets/product6.jpg", desc: "UV protected lens with modern frame." }
 ];
 
-function formatPrice(price){ return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-
-const CART_KEY = 'ehsan_cart_v1';
+function formatPrice(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","); }
 function getCart(){ try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch(e){ return {}; } }
-function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartBadge(); }
-function addToCart(productId, qty=1){ const cart=getCart(); cart[productId]=(cart[productId]||0)+qty; saveCart(cart); showToast('Added to cart'); }
-function updateQty(productId, qty){ const cart=getCart(); if(qty<=0) delete cart[productId]; else cart[productId]=qty; saveCart(cart); }
-function removeFromCart(productId){ const cart=getCart(); delete cart[productId]; saveCart(cart); }
+function saveCart(c){ localStorage.setItem(CART_KEY, JSON.stringify(c)); updateCartBadge(); }
+function addToCart(id, qty=1){ const c=getCart(); c[id]= (c[id]||0)+qty; saveCart(c); showToast("Added to cart"); }
+function updateQty(id, qty){ const c=getCart(); if(qty<=0) delete c[id]; else c[id]=qty; saveCart(c); }
+function removeFromCart(id){ const c=getCart(); delete c[id]; saveCart(c); }
 
+// Render products
 function renderProducts(){
-  const container=document.getElementById('products'); if(!container) return; container.innerHTML='';
+  const container = document.getElementById("products");
+  if(!container) return;
+  container.innerHTML = "";
   PRODUCTS.forEach(p=>{
-    const div=document.createElement('div'); div.className='product-card p-4 rounded-xl shadow';
+    const div = document.createElement("div");
+    div.className = "product-card p-4";
     div.innerHTML = `
-      <img src="${p.image}" alt="${p.title}" class="rounded-lg mb-3" onerror="this.src='assets/product-placeholder.png'"/>
+      <img src="${p.image}" alt="${p.title}" class="rounded-md mb-3" onerror="this.src='assets/product-placeholder.png'"/>
       <h3 class="text-lg font-semibold mb-1">${p.title}</h3>
       <p class="text-sm text-gray-500 mb-3">${p.desc}</p>
       <div class="flex items-center justify-between">
         <div class="text-lg font-bold">${p.currency} ${formatPrice(p.price)}</div>
-        <div class="flex gap-2">
-          <button data-id="${p.id}" class="add-to-cart bg-blue-600 text-white px-4 py-2 rounded-lg">Add</button>
-        </div>
+        <button data-id="${p.id}" class="add-to-cart bg-blue-600 text-white px-4 py-2 rounded">Add to Cart</button>
       </div>
     `;
     container.appendChild(div);
   });
-  document.querySelectorAll('.add-to-cart').forEach(b=>b.addEventListener('click', ()=> addToCart(b.getAttribute('data-id'),1)));
+  document.querySelectorAll(".add-to-cart").forEach(b=> b.addEventListener("click", ()=> addToCart(b.getAttribute("data-id"),1)));
 }
 
-// toast
-function showToast(text){
-  let t=document.getElementById('site-toast');
-  if(!t){ t=document.createElement('div'); t.id='site-toast'; t.className='fixed bottom-32 right-6 bg-black text-white px-4 py-2 rounded shadow-lg'; document.body.appendChild(t); }
-  t.textContent=text; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',1700);
+// Toast
+function showToast(msg){
+  let t=document.getElementById("site-toast");
+  if(!t){ t=document.createElement("div"); t.id="site-toast"; t.className="fixed bottom-32 right-6 bg-black text-white px-4 py-2 rounded shadow-lg"; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity=1; setTimeout(()=> t.style.opacity=0,1600);
 }
 
-// cart UI (slide-over simplified)
+// Cart UI (slide-over)
 function buildCartUI(){
-  if(document.getElementById('cart-panel')) return;
-  const panel=document.createElement('div'); panel.id='cart-panel';
-  panel.className='fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-lg transform translate-x-full transition-transform'; panel.style.zIndex=70;
-  panel.innerHTML=`
+  if(document.getElementById("cart-panel")) return;
+  const panel = document.createElement("div");
+  panel.id="cart-panel";
+  panel.className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-lg transform translate-x-full";
+  panel.style.zIndex=80;
+  panel.innerHTML = `
     <div class="p-4 flex items-center justify-between border-b">
       <h3 class="text-lg font-bold">Your Cart</h3>
       <button id="close-cart" class="text-gray-500">Close</button>
     </div>
     <div id="cart-items" class="p-4 space-y-3 overflow-auto" style="height: calc(100% - 160px);"></div>
     <div class="p-4 border-t">
-      <div class="flex items-center justify-between mb-3"><div class="font-semibold">Total</div><div id="cart-total" class="font-bold">PKR 0</div></div>
-      <div class="flex gap-2">
-        <button id="checkout-now" class="w-full text-white bg-green-600 py-2 rounded">Checkout</button>
+      <div class="flex items-center justify-between mb-3">
+        <div class="font-semibold">Total</div>
+        <div id="cart-total" class="font-bold">PKR 0</div>
+      </div>
+      <div class="flex gap-3">
+        <button id="checkout-start" class="flex-1 bg-green-600 text-white py-2 rounded">Checkout</button>
+        <button id="clear-cart" class="flex-0 px-4 py-2 border rounded">Clear</button>
       </div>
     </div>
   `;
   document.body.appendChild(panel);
-  document.getElementById('close-cart').addEventListener('click', ()=> panel.style.transform='translateX(100%)');
+  document.getElementById("close-cart").addEventListener("click", ()=> panel.style.transform = "translateX(100%)");
+  document.getElementById("checkout-start").addEventListener("click", ()=> openCheckoutModal());
+  document.getElementById("clear-cart").addEventListener("click", ()=> { localStorage.removeItem(CART_KEY); renderCartItems(); updateCartBadge(); });
 }
 
-function openCart(){ const p=document.getElementById('cart-panel'); if(p) p.style.transform='translateX(0)'; renderCartItems(); }
+function openCart(){ const panel=document.getElementById("cart-panel"); if(panel) { panel.style.transform="translateX(0)"; renderCartItems(); } }
+
 function renderCartItems(){
-  const container=document.getElementById('cart-items'); const totalEl=document.getElementById('cart-total'); if(!container) return;
-  const cart=getCart(); container.innerHTML=''; let total=0; const keys=Object.keys(cart);
-  if(keys.length===0){ container.innerHTML='<div class="text-gray-500">Your cart is empty.</div>'; totalEl.textContent='PKR 0'; return; }
+  const container = document.getElementById("cart-items");
+  const totalEl = document.getElementById("cart-total");
+  if(!container) return;
+  const cart = getCart();
+  container.innerHTML = "";
+  let total = 0;
+  const keys = Object.keys(cart);
+  if(keys.length==0){ container.innerHTML = "<div class='text-gray-500'>Your cart is empty.</div>"; totalEl.textContent = "PKR 0"; return; }
   keys.forEach(id=>{
-    const qty=cart[id]; const product=PRODUCTS.find(p=>p.id===id) || {title:'Unknown', price:0, image:'assets/product-placeholder.png'};
-    total+=product.price*qty;
-    const row=document.createElement('div'); row.className='flex items-center gap-3';
-    row.innerHTML=`
+    const qty = cart[id];
+    const product = PRODUCTS.find(p=>p.id===id) || {title:"Unknown",price:0,image:"assets/product-placeholder.png"};
+    total += product.price * qty;
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-3";
+    row.innerHTML = `
       <img src="${product.image}" class="w-16 h-16 object-cover rounded" onerror="this.src='assets/product-placeholder.png'"/>
       <div class="flex-1">
         <div class="font-semibold">${product.title}</div>
@@ -90,73 +113,89 @@ function renderCartItems(){
     `;
     container.appendChild(row);
   });
-  totalEl.textContent='PKR ' + formatPrice(total);
-  container.querySelectorAll('.inc').forEach(b=> b.addEventListener('click', ()=>{ updateQty(b.getAttribute('data-id'), getCart()[b.getAttribute('data-id')]+1); renderCartItems(); }));
-  container.querySelectorAll('.dec').forEach(b=> b.addEventListener('click', ()=>{ const id=b.getAttribute('data-id'); const cur=getCart()[id]; updateQty(id, Math.max(0, cur-1)); renderCartItems(); }));
-  container.querySelectorAll('.remove').forEach(b=> b.addEventListener('click', ()=>{ removeFromCart(b.getAttribute('data-id')); renderCartItems(); }));
+  totalEl.textContent = "PKR " + formatPrice(total);
+
+  container.querySelectorAll(".inc").forEach(btn=> btn.addEventListener("click", ()=> { const id=btn.getAttribute("data-id"); updateQty(id, getCart()[id]+1); renderCartItems(); }));
+  container.querySelectorAll(".dec").forEach(btn=> btn.addEventListener("click", ()=> { const id=btn.getAttribute("data-id"); const cur=getCart()[id]; updateQty(id, Math.max(0, cur-1)); renderCartItems(); }));
+  container.querySelectorAll(".remove").forEach(btn=> btn.addEventListener("click", ()=> { removeFromCart(btn.getAttribute("data-id")); renderCartItems(); }));
 }
 
-// update cart badge
+// cart badge
 function updateCartBadge(){
-  const badge=document.getElementById('cart-badge'); if(!badge) return;
-  const cart=getCart(); const count=Object.values(cart).reduce((s,n)=>s+n,0); badge.textContent=count;
+  const badge = document.getElementById("cart-badge");
+  if(!badge) return;
+  const c = getCart();
+  const count = Object.values(c).reduce((s,n)=>s+n,0);
+  badge.textContent = count;
 }
 
-// init UI
-function initUI(){
-  let cb=document.getElementById('cart-button'); if(!cb){
-    cb=document.createElement('button'); cb.id='cart-button'; cb.className='fixed top-6 right-6 bg-white p-3 rounded-full shadow-lg'; cb.innerHTML='Cart <span id="cart-badge" class="ml-2 inline-block bg-red-500 text-white text-xs px-2 py-0 rounded-full">0</span>'; document.body.appendChild(cb);
-  }
-  cb.addEventListener('click', ()=> openCart());
+// Checkout modal handling
+function openCheckoutModal(){
+  const cart = getCart();
+  if(Object.keys(cart).length===0){ showToast("Cart is empty"); return; }
+  document.getElementById("checkout-modal").classList.remove("hidden");
+}
+function closeCheckoutModal(){ document.getElementById("checkout-modal").classList.add("hidden"); }
+
+function buildCheckoutFlow(){
+  document.getElementById("checkout-cancel").addEventListener("click", ()=> closeCheckoutModal());
+  document.getElementById("checkout-confirm").addEventListener("click", ()=>{
+    const name = document.getElementById("cust-name").value.trim();
+    const phone = document.getElementById("cust-phone").value.trim();
+    const address = document.getElementById("cust-address").value.trim();
+    const tx = document.getElementById("cust-transaction").value.trim();
+
+    if(!name || !phone || !address){ alert("Please fill name, phone and address"); return; }
+
+    // Build order summary
+    const cart = getCart();
+    const items = Object.keys(cart).map(id => {
+      const p = PRODUCTS.find(x=>x.id===id) || {title:"Unknown", price:0};
+      return { id, title: p.title, qty: cart[id], price: p.price };
+    });
+
+    const total = items.reduce((s,i) => s + (i.price * i.qty), 0);
+
+    const order = {
+      id: "ORD" + Date.now(),
+      date: new Date().toISOString(),
+      customer: { name, phone, address },
+      items,
+      total,
+      transaction_id: tx || "",
+      status: "New"
+    };
+
+    // Save order locally (admin dashboard will read orders from this key)
+    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+    orders.push(order);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+
+    // Compose WhatsApp message
+    let msg = `New Order: ${order.id}\\nName: ${name}\\nPhone: ${phone}\\nAddress: ${address}\\n`;
+    if(tx) msg += `Transaction ID: ${tx}\\n`;
+    msg += "Items:\\n";
+    items.forEach(it => { msg += `- ${it.title} x${it.qty} @ PKR ${formatPrice(it.price)}\\n`; });
+    msg += `Total: PKR ${formatPrice(total)}`;
+
+    // URL-encode and open whatsapp
+    const wa = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    window.open(wa, "_blank");
+
+    // clear cart after checkout
+    localStorage.removeItem(CART_KEY);
+    renderCartItems();
+    updateCartBadge();
+    closeCheckoutModal();
+    showToast("Order sent via WhatsApp (and saved).");
+  });
+}
+
+// Initialization
+window.addEventListener("DOMContentLoaded", ()=>{
+  renderProducts();
   buildCartUI();
   updateCartBadge();
-
-  // checkout handler: open modal form
-  document.body.addEventListener('click', (e)=>{
-    if(e.target && e.target.id === 'checkout-now'){ // open modal
-      document.getElementById('checkout-modal').classList.remove('hidden');
-    }
-  });
-
-  document.getElementById('checkout-cancel').addEventListener('click', ()=> document.getElementById('checkout-modal').classList.add('hidden'));
-
-  document.getElementById('checkout-send').addEventListener('click', ()=> {
-    const name = document.getElementById('cust-name').value.trim();
-    const phone = document.getElementById('cust-phone').value.trim();
-    const address = document.getElementById('cust-address').value.trim();
-    const tx = document.getElementById('cust-transaction').value.trim();
-    if(!name || !phone || !address){ alert('Please fill name, phone and address'); return; }
-
-    // build message
-    const cart = getCart(); if(Object.keys(cart).length===0){ alert('Cart is empty'); return; }
-    let message = `New Order from website:%0AName: ${encodeURIComponent(name)}%0APhone: ${encodeURIComponent(phone)}%0AAddress: ${encodeURIComponent(address)}%0ATransaction: ${encodeURIComponent(tx || 'N/A')}%0A%0AItems:%0A`;
-    let total = 0;
-    Object.keys(cart).forEach(id=>{
-      const qty = cart[id]; const product = PRODUCTS.find(p=>p.id===id) || {title:'Unknown', price:0};
-      message += `${encodeURIComponent(product.title)} x ${qty} = PKR ${encodeURIComponent(product.price * qty)}%0A`;
-      total += product.price * qty;
-    });
-    message += `%0ATotal: PKR ${encodeURIComponent(total)}`;
-
-    // WhatsApp number (international format) => using 03018067880 -> +92 301 8067880
-    const waNumber = '923018067880';
-    const waUrl = `https://wa.me/${waNumber}?text=${message}`;
-
-    // open whatsapp
-    window.open(waUrl, '_blank');
-
-    // optionally save order summary in localStorage (for admin to view)
-    const orders = JSON.parse(localStorage.getItem('ehsan_orders_v1') || '[]');
-    orders.push({ id: `ORD${Date.now()}`, name, phone, address, tx, items:cart, total, date: new Date().toISOString(), status:'Sent via WhatsApp' });
-    localStorage.setItem('ehsan_orders_v1', JSON.stringify(orders));
-
-    // clear cart
-    localStorage.removeItem(CART_KEY);
-    updateCartBadge();
-    document.getElementById('checkout-modal').classList.add('hidden');
-    showToast('Order prepared — WhatsApp opened');
-  });
-}
-
-window.addEventListener('DOMContentLoaded', ()=>{ renderProducts(); initUI(); });
-window.EHSAN = { PRODUCTS, getCart, addToCart, removeFromCart, updateQty };
+  document.getElementById("cart-button").addEventListener("click", ()=> openCart());
+  buildCheckoutFlow();
+});
