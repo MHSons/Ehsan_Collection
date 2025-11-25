@@ -1,0 +1,6 @@
+- Place files in one folder.
+- Put your logo at ./logo.png.png (or change index.html src accordingly).
+- Put product images at ./assets/product1.jpg ... product6.jpg (replace placeholders).
+- Open index.html in browser or serve directory with a static server.
+- Admin login default: username: superadmin password: admin123 (change in admin.js or add another admin from dashboard)
+- Checkout uses WhatsApp to send a message to +92 301 8067880.
