@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ur">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ehsan Collection — Online Store</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body dir="rtl">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-link">
+        <img src="images/logo.png" alt="Ehsan Collection logo" class="site-logo" />
+      </a>
+
+      <div class="right-controls">
+        <button id="cartBtn">🛒 Cart (<span id="cartCount">0</span>)</button>
+        <a class="wa-float" href="https://wa.me/923018067880?text=Salam%20Ehsan%20Collection%20se%20baat%20karna%20chahta%20hoon" target="_blank">💬</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ad Slot -->
+  <section class="ad-slot container">
+    <div class="ad-placeholder">Your Ad Banner Here</div>
+  </section>
+
+  <!-- Poster -->
+  <section class="hero container">
+    <img src="images/poster1.jpg" alt="Poster" class="hero-poster" />
+  </section>
+
+  <!-- Products -->
+  <section class="products container">
+    <h2>مصنوعات</h2>
+    <div class="grid" id="productsGrid"></div>
+  </section>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox hidden">
+    <button class="close" id="lbClose">×</button>
+    <img id="lbImg" src="" />
+  </div>
+
+  <!-- Cart Modal -->
+  <div id="cartModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close" id="cartClose">×</button>
+      <h3>آپ کی Cart</h3>
+
+      <div id="cartItems"></div>
+      <div class="cart-total">کل: <span id="cartTotal">0</span> PKR</div>
+
+      <div class="checkout-actions">
+        <button id="checkoutPay" class="btn">Checkout (Demo)</button>
+        <a id="whatsappCheckout" class="btn whatsapp" target="_blank">Pay via WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer container">
+    <p>© <span id="year"></span> Ehsan Collection</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
