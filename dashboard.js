@@ -36,7 +36,6 @@ $id('save-product').addEventListener('click', async ()=>{
   const price = parseFloat($id('prod-price').value) || 0;
   const desc = $id('prod-desc').value.trim();
   const qty = parseInt($id('prod-qty').value) || 0;
-  // handle file
   const fileInput = $id('prod-image');
   let imageUrl = '';
   if(fileInput.files && fileInput.files[0]){
@@ -58,7 +57,6 @@ function resetProductForm(){
   $id('prod-id').value=''; $id('prod-title').value=''; $id('prod-price').value=''; $id('prod-desc').value=''; $id('prod-qty').value=''; $id('prod-image').value='';
 }
 
-// Render list
 function renderProductsList(){
   const wrap = $id('product-list'); wrap.innerHTML = '';
   const products = loadProducts();
@@ -83,6 +81,7 @@ function renderProductsList(){
     if(act==='edit'){ editProduct(id); } else if(act==='del'){ if(confirm('Delete product?')) deleteProduct(id); }
   }));
 }
+
 function editProduct(id){
   const products = loadProducts();
   const p = products.find(x=>x.id===id); if(!p) return;
@@ -100,7 +99,21 @@ function toDataURL(file){ return new Promise((res,rej)=>{
 
 // BANKS management
 function loadBanks(){ return JSON.parse(localStorage.getItem(KEY_BANKS) || '[]'); }
-function saveBanks(list){ localStorage.setItem(KEY_BANKS, JSON.stringify(list)); }
+
+/* ⭐ UPDATED FUNCTION — homepage compatibility added */
+function saveBanks(list){
+  localStorage.setItem(KEY_BANKS, JSON.stringify(list));
+
+  // ⭐ Add this to update homepage bank list also
+  localStorage.setItem("bank_accounts", JSON.stringify(
+    list.map(b => ({
+      bank: b.name,
+      account: b.acc,
+      iban: b.iban
+    }))
+  ));
+}
+/* END UPDATE ⭐ */
 
 $id('save-bank').addEventListener('click', ()=>{
   const id = $id('bank-id').value || ('b' + Date.now());
@@ -113,8 +126,10 @@ $id('save-bank').addEventListener('click', ()=>{
   if(idx>=0) list[idx]=entry; else list.push(entry);
   saveBanks(list); resetBankForm(); renderBanksList(); alert('Bank saved');
 });
+
 $id('reset-bank').addEventListener('click', resetBankForm);
 function resetBankForm(){ $id('bank-id').value=''; $id('bank-name').value=''; $id('bank-account').value=''; $id('bank-iban').value=''; }
+
 function renderBanksList(){
   const wrap = $id('bank-list'); wrap.innerHTML='';
   const banks = loadBanks();
@@ -167,13 +182,12 @@ function renderOrders(){
 $id('download-orders').addEventListener('click', ()=>{
   const orders = loadOrders();
   if(orders.length===0){ alert('No orders'); return; }
-  // create CSV
   const rows = [['OrderID','Name','Phone','Address','Transaction','Total','Items','Date','Status']];
   orders.forEach(o=>{
     const itemsText = o.items.map(i=> `${i.title} x${i.qty}`).join('; ');
     rows.push([o.id, o.name, o.phone, o.address, (o.transaction||''), o.total, itemsText, o.createdAt, o.status]);
   });
-  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\\n');
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download = 'orders.csv'; a.click(); URL.revokeObjectURL(url);
@@ -214,6 +228,23 @@ $id('logout-btn').addEventListener('click', ()=>{
   window.location.href = 'admin.html';
 });
 
-// initial render
 renderProductsList(); renderBanksList(); renderOrders(); renderAdmins();
-function renderBanksList(){ /* same function as defined earlier, but to keep module simple call it above */ const wrap = $id('bank-list'); wrap.innerHTML=''; const banks = JSON.parse(localStorage.getItem(KEY_BANKS) || '[]'); if(banks.length===0){ wrap.innerHTML='<div>No banks</div>'; return; } banks.forEach((b, idx)=>{ const div = document.createElement('div'); div.className='list-row'; div.innerHTML = `<div><div class="font-semibold">${b.name}</div><div class="text-sm">${b.acc} ${b.iban?(' • IBAN: '+b.iban):''}</div></div><div><button class="small-btn" data-i="${idx}" data-act="del">Del</button></div>`; wrap.appendChild(div); }); wrap.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=>{ if(confirm('Delete bank?')){ const arr = JSON.parse(localStorage.getItem(KEY_BANKS)||'[]'); arr.splice(parseInt(b.dataset.i),1); localStorage.setItem(KEY_BANKS, JSON.stringify(arr)); renderBanksList(); } })); }
+
+function renderBanksList(){
+  const wrap = $id('bank-list'); wrap.innerHTML='';
+  const banks = JSON.parse(localStorage.getItem(KEY_BANKS) || '[]');
+  if(banks.length===0){ wrap.innerHTML='<div>No banks</div>'; return; }
+  banks.forEach((b, idx)=>{
+    const div = document.createElement('div'); div.className='list-row';
+    div.innerHTML = `<div><div class="font-semibold">${b.name}</div><div class="text-sm">${b.acc} ${b.iban?(' • IBAN: '+b.iban):''}</div></div><div><button class="small-btn" data-i="${idx}" data-act="del">Del</button></div>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=>{
+    if(confirm('Delete bank?')){
+      const arr = JSON.parse(localStorage.getItem(KEY_BANKS)||'[]');
+      arr.splice(parseInt(b.dataset.i),1);
+      saveBanks(arr);
+      renderBanksList();
+    }
+  }));
+}
