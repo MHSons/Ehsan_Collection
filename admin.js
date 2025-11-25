@@ -2,7 +2,7 @@
 const KEY_ADMINS = 'ehsan_admins_v1';
 
 // If no admin list exists, keep default created in main.js, but ensure default present:
-if(!localStorage.getItem(KEY_ADMINS)) localStorage.setItem(KEY_ADMINS, JSON.stringify([{username:'superadmin', password:'admin123', role:'super'}]));
+if(!localStorage.getItem(KEY_ADMINS)) localStorage.setItem(KEY_ADMINS, JSON.stringify([{username:'admin', password:'admin123', role:'super'}]));
 
 document.getElementById('admin-login').addEventListener('submit', function(e){
   e.preventDefault();
