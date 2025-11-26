@@ -1,66 +1,112 @@
-/* File: auth.js */
+/* auth.js
+   Client-side authentication helpers.
+   - Uses Web Crypto API SHA-256 to hash passwords (not a replacement for server hashing).
+   - Stores users in localStorage under key 'ecom_users_v1'
+   - Stores session token in localStorage 'ecom_session'
+   - Supports simple role: 'user' | 'admin'
+*/
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // UI Toggling
-    const loginSection = document.getElementById('login-section');
-    const signupSection = document.getElementById('signup-section');
-    const showLoginBtn = document.getElementById('show-login-btn');
-    const showSignupBtn = document.getElementById('show-signup-btn');
-    
-    showLoginBtn.addEventListener('click', () => {
-        loginSection.classList.remove('hidden');
-        signupSection.classList.add('hidden');
-        showLoginBtn.classList.add('active');
-        showSignupBtn.classList.remove('active');
-    });
+const Auth = (() => {
+  const USERS_KEY = 'ecom_users_v1';
+  const SESSION_KEY = 'ecom_session';
+  const SALT = 'ecom_salt_v1'; // client-side salt for hashing (change if migrating)
 
-    showSignupBtn.addEventListener('click', () => {
-        signupSection.classList.remove('hidden');
-        loginSection.classList.add('hidden');
-        showSignupBtn.classList.add('active');
-        showLoginBtn.classList.remove('active');
-    });
+  // Helpers
+  async function sha256(str) {
+    const enc = new TextEncoder();
+    const buf = enc.encode(str);
+    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+    const hashArray = Array.from(new Uint8Array(hashBuf));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
-    // --- Form Submission Logic ---
-    
-    // Login Form Handler
-    const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        
-        // **DEMO ONLY:** A real system requires an API call to a secure server.
-        if (email === "demo@mahstore.com" && password === "123456") {
-            alert('Login Successful! Welcome back.');
-            // In a real app, you would set a secure session cookie here
-            window.location.href = 'index.html'; 
-        } else {
-            alert('Invalid Email or Password. Please try again.');
-        }
-    });
+  function readUsers() {
+    try {
+      return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+  function writeUsers(arr) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(arr));
+  }
 
-    // Signup Form Handler
-    const signupForm = document.getElementById('signup-form');
-    signupForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('signup-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('signup-confirm-password').value;
+  async function register({ name, email, password, role = 'user' }) {
+    if (!email || !password || !name) throw new Error('Missing fields');
+    const users = readUsers();
+    const exists = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (exists) throw new Error('Email already registered');
+    const hash = await sha256(SALT + password);
+    const user = {
+      id: 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+      name,
+      email: email.toLowerCase(),
+      passwordHash: hash,
+      role,
+      createdAt: new Date().toISOString()
+    };
+    users.push(user);
+    writeUsers(users);
+    // auto login
+    setSession({ id: user.id, name: user.name, email: user.email, role: user.role });
+    return user;
+  }
 
-        if (password !== confirmPassword) {
-            alert('Passwords do not match. Please re-enter.');
-            return;
-        }
+  async function login({ email, password }) {
+    if (!email || !password) throw new Error('Missing fields');
+    const users = readUsers();
+    const user = users.find(u => u.email === email.toLowerCase());
+    if (!user) throw new Error('Invalid credentials');
+    const hash = await sha256(SALT + password);
+    if (hash !== user.passwordHash) throw new Error('Invalid credentials');
+    setSession({ id: user.id, name: user.name, email: user.email, role: user.role });
+    return user;
+  }
 
-        // **DEMO ONLY:** A real system requires storing the user data on a secure server.
-        alert(`Account created successfully for ${name}! Please login.`);
-        
-        // After successful sign up, switch to login view
-        showLoginBtn.click();
-    });
-});
+  function setSession(payload) {
+    const token = {
+      user: payload,
+      issuedAt: new Date().toISOString()
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(token));
+    // notify other tabs
+    localStorage.setItem('ecom_session_change', Date.now().toString());
+  }
+  function logout() {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.setItem('ecom_session_change', Date.now().toString());
+  }
+  function getSession() {
+    try {
+      return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  function requireAuth(redirectTo = 'login.html') {
+    const s = getSession();
+    if (!s) {
+      window.location.href = redirectTo;
+      return null;
+    }
+    return s.user;
+  }
+
+  function isAdmin() {
+    const s = getSession();
+    return s && s.user && s.user.role === 'admin';
+  }
+
+  // Expose
+  return {
+    register,
+    login,
+    logout,
+    getSession,
+    requireAuth,
+    isAdmin,
+    _readUsers: readUsers,
+    _writeUsers: writeUsers
+  };
+})();
