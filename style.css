@@ -1,30 +1,259 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-
-body { font-family: 'Inter', sans-serif; background: #f7fafc; }
-
-/* header */
-header { backdrop-filter: blur(6px); background: rgba(255,255,255,0.9); border-bottom: 1px solid #e6edf3; }
-
-/* hero */
-.hero-title { background: linear-gradient(90deg,#ef4444,#3b82f6); -webkit-background-clip: text; color: transparent; }
-
-/* product card */
-.product-card { transition: transform .22s ease, box-shadow .22s ease; border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid #e6edf3; }
-.product-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(15,23,42,0.08); }
-.product-card img { width:100%; height:220px; object-fit:cover; }
-
-/* whatsapp btn */
-.whatsapp-btn {
-  position: fixed; bottom: 20px; right: 20px; z-index: 80;
-  display:flex; align-items:center; gap:8px;
-  background:#25D366; color:white; padding:12px 16px; border-radius:999px; box-shadow:0 8px 30px rgba(2,6,23,0.12);
+/* ---- 1. Global Reset & Variables ---- */
+:root {
+    --primary-color: #e53e3e; /* A strong red for E-commerce */
+    --secondary-color: #2d3748; /* Dark grey for background/text */
+    --text-color: #4a5568;
+    --bg-light: #f7fafc;
 }
 
-/* cart panel */
-#cart-panel { transition: transform .25s ease; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-/* small screens adjustments */
-@media (max-width:640px){
-  .product-card img { height:180px; }
-  .hero-title { font-size:1.5rem; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-light);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ---- 2. Header and Navigation ---- */
+.main-header {
+    background: var(--secondary-color);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.main-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: var(--primary-color);
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.main-nav a:hover, .header-actions a:hover {
+    color: var(--primary-color);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-actions a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.menu-toggle {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* ---- 3. Hero Section ---- */
+.hero-section {
+    background: url('placeholder-banner.jpg') no-repeat center center/cover; /* Replace with your banner image */
+    background-color: #000;
+    color: white;
+    text-align: center;
+    padding: 6rem 0;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.hero-section p {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.btn-primary {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px; /* Pill shape */
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    border: 2px solid var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #c53030;
+    transform: translateY(-2px);
+}
+
+/* ---- 4. Products Grid ---- */
+.products-section {
+    padding: 3rem 0;
+}
+
+.products-section h2 {
+    text-align: center;
+    font-size: 2.25rem;
+    margin-bottom: 2rem;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+    padding-bottom: 0.5rem;
+    width: auto;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Auto adapts to screen width */
+    gap: 2rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+}
+
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+}
+
+.product-info p.price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.product-info .btn-primary {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+/* ---- 5. Footer ---- */
+.main-footer {
+    background: var(--secondary-color);
+    color: #a0aec0;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.main-footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; 
+}
+
+.social-links a {
+    color: white;
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    transition: color 0.3s;
+}
+
+.social-links a:hover {
+    color: var(--primary-color);
+}
+
+/* ---- 6. Media Queries for Responsiveness ---- */
+@media (max-width: 768px) {
+    /* Mobile Navigation */
+    .main-nav {
+        display: none;
+    }
+    
+    .main-header .container {
+        justify-content: space-between;
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .menu-toggle {
+        display: block; /* Show menu icon on small screens */
+    }
+
+    .header-actions {
+        gap: 1rem;
+    }
+
+    /* Hero Section Adjustments */
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section p {
+        font-size: 1rem;
+    }
 }
