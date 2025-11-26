@@ -1,0 +1,77 @@
+<!-- File: products.html -->
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - MAH Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="products.css"> <!-- New CSS for product page layout -->
+</head>
+<body>
+    
+    <header id="main-header">
+        <!-- Re-use the header content from index.html -->
+    </header>
+
+    <main id="products-main">
+        <div class="products-container">
+            <h2>تمام مصنوعات کی فہرست (All Products)</h2>
+            
+            <div class="main-content-grid">
+                
+                <!-- سائیڈ بار: فلٹرز -->
+                <aside id="filter-sidebar">
+                    <h3>🔍 فلٹرز اور کیٹیگریز</h3>
+                    <div class="filter-group">
+                        <h4>کیٹیگریز (Categories)</h4>
+                        <ul id="categories-list">
+                            <li><a href="#" data-category="all" class="active-category">تمام (All)</a></li>
+                            <li><a href="#" data-category="electronics">الیکٹرانکس</a></li>
+                            <li><a href="#" data-category="fashion">فیشن</a></li>
+                            <li><a href="#" data-category="home">گھر اور زندگی</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <h4>قیمت کی حد (Price Range)</h4>
+                        <input type="range" id="price-range-slider" min="1000" max="500000" value="500000">
+                        <p>زیادہ سے زیادہ: <span id="max-price-display">500,000 PKR</span></p>
+                    </div>
+                    
+                    <button class="apply-filters-btn">فلٹرز لاگو کریں</button>
+                </aside>
+                
+                <!-- پروڈکٹ کی فہرست -->
+                <section id="product-list-area">
+                    <div class="controls-bar">
+                        <p><span id="product-count">0</span> پروڈکٹس دکھائے جا رہے ہیں</p>
+                        <select id="sort-by">
+                            <option value="default">ترتیب (Default)</option>
+                            <option value="price-asc">کم قیمت پہلے</option>
+                            <option value="price-desc">زیادہ قیمت پہلے</option>
+                            <option value="name-asc">نام (A-Z)</option>
+                        </select>
+                    </div>
+
+                    <!-- Product Grid will be loaded here by product.js -->
+                    <div id="product-grid" class="product-grid">
+                        <p class="loading-message">مصنوعات لوڈ ہو رہی ہیں...</p>
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <!-- Pagination buttons here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer id="main-footer">
+        <!-- Re-use the footer content from index.html -->
+    </footer>
+
+    <script src="main.js"></script> <!-- Re-use main script for cart functions -->
+    <script src="products.js"></script> <!-- New script for product listing logic -->
+</body>
+</html>
