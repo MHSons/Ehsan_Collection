@@ -1,145 +1,281 @@
-/* File: products.js */
-
-// Re-use DUMMY_PRODUCTS from cart_checkout.js (or fetch from an API in a real app)
-const DUMMY_PRODUCTS_DB = [
-    { id: 'P101', name: 'Ultra HD Gaming Laptop', price: 250000, category: 'electronics', rating: 4.8, img: 'placeholder-prod1.jpg' },
-    { id: 'P102', name: 'Classic Leather Watch', price: 15000, category: 'fashion', rating: 4.5, img: 'placeholder-prod2.jpg' },
-    { id: 'P103', name: 'Noise-Cancelling Headphones', price: 8500, category: 'electronics', rating: 4.9, img: 'placeholder-prod3.jpg' },
-    { id: 'P104', name: 'Designer Sofa Set', price: 180000, category: 'home', rating: 4.2, img: 'placeholder-prod4.jpg' },
-    { id: 'P105', name: 'Smart Home Hub', price: 5000, category: 'electronics', rating: 4.0, img: 'placeholder-prod5.jpg' },
-    { id: 'P106', name: 'Summer Dress Collection', price: 7500, category: 'fashion', rating: 4.6, img: 'placeholder-prod6.jpg' },
-];
-
-document.addEventListener('DOMContentLoaded', () => {
-    
-    const productGrid = document.getElementById('product-grid');
-    const sortSelect = document.getElementById('sort-by');
-    const categoryLinks = document.querySelectorAll('#categories-list a');
-    const maxPriceSlider = document.getElementById('price-range-slider');
-    const maxPriceDisplay = document.getElementById('max-price-display');
-    const productCountDisplay = document.getElementById('product-count');
-
-    let currentFilters = {
-        category: 'all',
-        maxPrice: DUMMY_PRODUCTS_DB.reduce((max, prod) => Math.max(max, prod.price), 0),
-        sortBy: 'default'
-    };
-    
-    // --- 1. Initial Setup ---
-    maxPriceSlider.max = currentFilters.maxPrice;
-    maxPriceSlider.value = currentFilters.maxPrice;
-    maxPriceDisplay.textContent = `${currentFilters.maxPrice.toLocaleString()} PKR`;
-    
-    // --- 2. Event Listeners ---
-    
-    // Price Slider
-    maxPriceSlider.addEventListener('input', () => {
-        currentFilters.maxPrice = parseInt(maxPriceSlider.value);
-        maxPriceDisplay.textContent = `${currentFilters.maxPrice.toLocaleString()} PKR`;
-        filterAndRenderProducts();
-    });
-
-    // Category Links
-    categoryLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            categoryLinks.forEach(l => l.classList.remove('active-category'));
-            link.classList.add('active-category');
-            currentFilters.category = link.dataset.category;
-            filterAndRenderProducts();
-        });
-    });
-    
-    // Sort Select
-    sortSelect.addEventListener('change', (e) => {
-        currentFilters.sortBy = e.target.value;
-        filterAndRenderProducts();
-    });
-
-    // --- 3. Core Logic ---
-    function filterAndRenderProducts() {
-        let filteredProducts = [...DUMMY_PRODUCTS_DB];
-
-        // 3a. Filtering by Category
-        if (currentFilters.category !== 'all') {
-            filteredProducts = filteredProducts.filter(p => p.category === currentFilters.category);
-        }
-
-        // 3b. Filtering by Price
-        filteredProducts = filteredProducts.filter(p => p.price <= currentFilters.maxPrice);
-
-        // 3c. Sorting
-        switch (currentFilters.sortBy) {
-            case 'price-asc':
-                filteredProducts.sort((a, b) => a.price - b.price);
-                break;
-            case 'price-desc':
-                filteredProducts.sort((a, b) => b.price - a.price);
-                break;
-            case 'name-asc':
-                filteredProducts.sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
-                break;
-            // Default: Keep order from the DB
-        }
-        
-        // 3d. Rendering
-        let html = '';
-        if (filteredProducts.length === 0) {
-            html = '<p class="loading-message">اس فلٹر کے تحت کوئی مصنوعہ نہیں ملا۔</p>';
-        } else {
-            filteredProducts.forEach(product => {
-                 // Re-use the product-card structure from index.html
-                html += `
-                    <div class="product-card">
-                        <img src="${product.img}" alt="${product.name}">
-                        <div class="product-info">
-                            <h4>${product.name}</h4>
-                            <p class="price">
-                                <span class="currency">PKR</span> 
-                                <span class="amount">${product.price.toLocaleString()}</span>
-                            </p>
-                            <span class="rating">⭐ ${product.rating}</span>
-                            <button class="add-to-cart-btn" data-product-id="${product.id}">کارٹ میں ڈالیں</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-        
-        productGrid.innerHTML = html;
-        productCountDisplay.textContent = filteredProducts.length;
-
-        // Re-attach the Add to Cart event listeners (from main.js)
-        attachAddToCartListeners();
-    }
-    
-    // Helper function to re-attach 'Add to Cart' listeners on dynamic content
-    function attachAddToCartListeners() {
-        // Assume the addToCart function is defined in main.js and available globally
-        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-        addToCartButtons.forEach(button => {
-            // Remove previous listeners to prevent duplicates (important for dynamic content)
-            button.removeEventListener('click', window.addToCartHandler); 
-
-            // Add new listener (You need to ensure your main.js exposes a global addToCart function)
-            button.addEventListener('click', () => {
-                const productId = button.dataset.productId;
-                if (productId) {
-                    window.addToCart(productId); // Assuming addToCart is defined globally in main.js
-                }
-            });
-        });
-    }
-
-
-    // --- 4. Initialize ---
-    filterAndRenderProducts();
-});
-
-
-// Note: For this to work seamlessly, ensure your main.js has an exposed global function like:
-/*
-window.addToCart = function(productId) {
-    // ... logic to add item to local storage cart ...
-}
+/* products.js
+   - Stores products under StorageService key 'products'
+   - Admin CRUD: Add/Edit/Delete product (images stored as base64)
+   - Search, filter, paginate
 */
+
+(() => {
+  const STORE = window.App.StorageService;
+  const PRODUCTS_KEY = 'products';
+  const VERSION = 'v1';
+
+  const defaultProducts = [
+    {
+      id: 'p_' + Date.now(),
+      title: 'Classic Leather Wallet',
+      slug: 'classic-leather-wallet',
+      description: 'Premium genuine leather wallet, multiple card slots.',
+      price: 1499,
+      category: 'Accessories',
+      images: [],
+      stock: 25,
+      createdAt: new Date().toISOString()
+    }
+  ];
+
+  function ensureSeed() {
+    const existing = STORE.get(PRODUCTS_KEY, VERSION);
+    if (!existing) {
+      STORE.set(PRODUCTS_KEY, defaultProducts, VERSION);
+    }
+  }
+
+  function readProducts() {
+    return STORE.get(PRODUCTS_KEY, VERSION) || [];
+  }
+
+  function writeProducts(list) {
+    STORE.set(PRODUCTS_KEY, list, VERSION);
+  }
+
+  function addProduct(obj) {
+    const list = readProducts();
+    obj.id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    obj.slug = obj.slug || window.App.slugify(obj.title);
+    obj.createdAt = new Date().toISOString();
+    list.unshift(obj);
+    writeProducts(list);
+  }
+
+  function updateProduct(id, patch) {
+    const list = readProducts();
+    const idx = list.findIndex(p => p.id === id);
+    if (idx === -1) throw new Error('Not found');
+    list[idx] = Object.assign({}, list[idx], patch);
+    writeProducts(list);
+  }
+
+  function deleteProduct(id) {
+    const list = readProducts().filter(p => p.id !== id);
+    writeProducts(list);
+  }
+
+  // UI
+  const elList = document.getElementById('product-list');
+  const elSearch = document.getElementById('search');
+  const elCategory = document.getElementById('category-filter');
+  const elPagination = document.getElementById('pagination');
+  const btnNew = document.getElementById('btn-new-product');
+  const btnImport = document.getElementById('btn-import');
+  const btnExport = document.getElementById('btn-export');
+
+  let state = { q:'', category:'', page:1, perPage:12 };
+
+  function buildCategoryOptions() {
+    const cats = new Set(readProducts().map(p => p.category).filter(Boolean));
+    elCategory.innerHTML = '<option value="">All categories</option>' + [...cats].map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+
+  function render() {
+    const all = readProducts();
+    buildCategoryOptions();
+    let filtered = all.slice();
+
+    if (state.q) {
+      const q = state.q.toLowerCase();
+      filtered = filtered.filter(p => (p.title+p.description+(p.category||'')).toLowerCase().includes(q));
+    }
+    if (state.category) filtered = filtered.filter(p => p.category === state.category);
+
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / state.perPage));
+    if (state.page > pages) state.page = pages;
+
+    const start = (state.page-1)*state.perPage;
+    const paged = filtered.slice(start, start + state.perPage);
+
+    elList.innerHTML = paged.map(p => {
+      const img = p.images && p.images[0] ? p.images[0] : 'data:image/svg+xml;base64,' + btoa(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='100%' height='100%' fill='#efefef'/><text x='50%' y='50%' alignment-baseline='middle' text-anchor='middle' fill='#999' font-size='20'>No Image</text></svg>`);
+      return `
+      <div class="card">
+        <img src="${img}" alt="${p.title}" loading="lazy"/>
+        <h4>${p.title}</h4>
+        <div>${p.category || ''}</div>
+        <div class="price">${window.App.currency(p.price)}</div>
+        <div class="actions">
+          <button class="btn" data-action="view" data-id="${p.id}">View</button>
+          <button class="btn secondary" data-action="add" data-id="${p.id}">Add to cart</button>
+          <button class="btn secondary" data-action="edit" data-id="${p.id}">Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    // pagination
+    let pagHtml = '';
+    for (let i=1;i<=pages;i++){
+      pagHtml += `<button class="btn ${i===state.page?'active':''}" data-page="${i}">${i}</button>`;
+    }
+    elPagination.innerHTML = pagHtml || '';
+    updateCartCount();
+  }
+
+  function updateCartCount() {
+    const c = STORE.get('cart', 'v1') || [];
+    const el = document.getElementById('cart-count');
+    if (el) el.textContent = c.reduce((s,i)=>s+i.qty,0);
+  }
+
+  // events
+  elList.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const products = readProducts();
+    const prod = products.find(p=>p.id===id);
+    if (action === 'add') {
+      const cart = STORE.get('cart', 'v1') || [];
+      const existing = cart.find(i=>i.product===id);
+      if (existing) existing.qty += 1;
+      else cart.push({ product: id, title: prod.title, price: prod.price, qty: 1, image: prod.images?.[0] || null });
+      STORE.set('cart', cart, 'v1');
+      updateCartCount();
+      alert('Added to cart');
+    } else if (action === 'view') {
+      window.location.href = `product.html?id=${id}`;
+    } else if (action === 'edit') {
+      openModal(prod);
+    }
+  });
+
+  elPagination.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    state.page = Number(btn.dataset.page);
+    render();
+  });
+
+  elSearch.addEventListener('input', debounce((ev) => {
+    state.q = ev.target.value.trim();
+    state.page = 1;
+    render();
+  }, 300));
+
+  elCategory.addEventListener('change', (ev) => {
+    state.category = ev.target.value;
+    state.page = 1;
+    render();
+  });
+
+  btnNew.addEventListener('click', ()=> openModal());
+
+  btnExport.addEventListener('click', ()=> {
+    const data = readProducts();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'products_export.json';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+
+  btnImport.addEventListener('click', ()=> {
+    const input = document.createElement('input'); input.type='file'; input.accept='application/json';
+    input.onchange = async (ev) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const txt = await file.text();
+      try {
+        const arr = JSON.parse(txt);
+        if (!Array.isArray(arr)) throw new Error('Invalid file');
+        // simple merge (prepend)
+        const existing = readProducts();
+        writeProducts(arr.concat(existing));
+        alert('Imported ' + arr.length + ' products');
+        render();
+      } catch (err) { alert('Import failed: '+err.message); }
+    };
+    input.click();
+  });
+
+  // Modal form logic
+  const modal = document.getElementById('product-modal');
+  const modalClose = document.getElementById('modal-close');
+  const form = document.getElementById('product-form');
+  const deleteBtn = document.getElementById('delete-product');
+  let editingId = null;
+
+  function openModal(product = null) {
+    modal.classList.remove('hidden');
+    editingId = product ? product.id : null;
+    document.getElementById('modal-title').textContent = product ? 'Edit product' : 'Add product';
+    form.title.value = product?.title || '';
+    form.price.value = product?.price || '';
+    form.category.value = product?.category || '';
+    form.stock.value = product?.stock || 0;
+    form.description.value = product?.description || '';
+    deleteBtn.classList.toggle('hidden', !product);
+  }
+  function closeModal() {
+    modal.classList.add('hidden');
+    editingId = null;
+    form.reset();
+  }
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=> { if (e.target === modal) closeModal(); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const obj = {
+      title: fd.get('title').trim(),
+      price: Number(fd.get('price')),
+      category: fd.get('category').trim(),
+      stock: Number(fd.get('stock')),
+      description: fd.get('description').trim(),
+      images: []
+    };
+    const file = fd.get('image');
+    if (file && file.size) {
+      const base64 = await toBase64(file);
+      obj.images = [base64];
+    }
+    if (editingId) {
+      updateProduct(editingId, obj);
+      alert('Updated');
+    } else {
+      addProduct(obj);
+      alert('Created');
+    }
+    closeModal();
+    render();
+  });
+
+  deleteBtn.addEventListener('click', ()=> {
+    if (!editingId) return;
+    if (!confirm('Delete this product?')) return;
+    deleteProduct(editingId);
+    closeModal();
+    render();
+  });
+
+  function toBase64(file){
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  // init
+  ensureSeed();
+  render();
+
+  // watch product storage changes from other tabs
+  window.addEventListener('storage', (e) => {
+    if (e.key && e.key.indexOf('ecom_products_v1_changed') !== -1) {
+      render();
+    }
+    if (e.key && e.key.indexOf('ecom_cart_v1_changed') !== -1) updateCartCount();
+  });
+})();
