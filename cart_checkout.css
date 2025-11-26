@@ -1,0 +1,181 @@
+/* File: cart_checkout.css */
+
+/* کارٹ اور چیک آؤٹ کے لیے کنٹینر کی اضافی سٹائلنگ */
+.cart-container, .checkout-container {
+    padding: 30px 20px;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cart-container h2, .checkout-container h2 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* کارٹ آئٹم کی فہرست کا ڈھانچہ */
+#cart-table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+#cart-table-wrapper th, #cart-table-wrapper td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: right;
+}
+
+#cart-table-wrapper th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.item-details img {
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    margin-left: 10px; /* RTL */
+    border-radius: 4px;
+}
+
+/* مقدار کا کنٹرول */
+.quantity-control input {
+    width: 60px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.remove-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.remove-btn:hover {
+    background: #c82333;
+}
+
+/* کارٹ کا خلاصہ (Summary) */
+#cart-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    clear: both;
+    margin-top: 20px;
+}
+
+.summary-details p {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.total-line {
+    border-top: 2px solid #ccc;
+    padding-top: 10px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.total-line h4 {
+    color: #007bff;
+    font-size: 1.5rem;
+}
+
+.primary-checkout-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: #28a745; /* گرین کلر */
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.primary-checkout-btn:hover {
+    background: #218838;
+}
+
+.continue-shopping {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #333;
+}
+
+
+/* چیک آؤٹ گرڈ لے آؤٹ */
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 2/3 حصہ پتہ، 1/3 حصہ خلاصہ */
+    gap: 40px;
+}
+
+.checkout-section h3 {
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.payment-options {
+    margin-bottom: 20px;
+}
+
+.payment-options label {
+    display: block;
+    padding: 8px 0;
+    cursor: pointer;
+}
+
+#place-order-btn {
+    width: 100%;
+    padding: 15px;
+    background: #ff7e00; /* آرڈر کرنے کے لیے اورنج رنگ */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s;
+}
+
+#place-order-btn:hover {
+    background: #e66e00;
+}
