@@ -1,74 +1,34 @@
-<!-- File: cart.html -->
-<!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart - Your Shopping Bag | MAH Store</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="cart_checkout.css"> <!-- New CSS file for cart/checkout -->
+  <meta charset="utf-8" />
+  <title>Cart — E-Commerce</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="cart_checkout.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header id="main-header">
-        <!-- Re-use the header from index.html here -->
-        <div class="header-container">
-            <div id="logo-area">
-                <img src="logo.png" alt="MAH Store Logo" class="logo">
-                <h1 class="site-title">MAH Store</h1>
-            </div>
-            <nav id="main-nav">
-                <ul>
-                    <li><a href="index.html">ہوم</a></li>
-                    <li class="active-link"><a href="cart.html">کارٹ</a></li>
-                    <li><a href="products.html">شاپنگ</a></li>
-                </ul>
-            </nav>
-            <div class="user-actions">
-                <a href="login.html" class="action-btn">لاگ اِن / رجسٹر</a>
-                <a href="cart.html" class="action-btn cart-btn">
-                    🛒 کارٹ (<span id="cart-count">0</span>)
-                </a>
-            </div>
-        </div>
-    </header>
+  <header class="topbar">
+    <div class="container">
+      <a href="index.html" class="logo">E-Commerce</a>
+      <nav><a href="products.html">Products</a></nav>
+    </div>
+  </header>
 
-    <main id="cart-main">
-        <div class="cart-container">
-            <h2>🛒 آپ کی خریداری کی ٹوکری</h2>
-            
-            <section id="cart-items-list">
-                <!-- Cart items will be dynamically loaded here by cart_checkout.js -->
-                <p id="empty-cart-message">آپ کا کارٹ خالی ہے۔ چلیں، کچھ شاپنگ کرتے ہیں!</p>
-                <div id="cart-table-wrapper" class="hidden">
-                    <!-- Dynamic Cart Table goes here -->
-                </div>
-            </section>
+  <main class="container page">
+    <h1>Your Cart</h1>
+    <section id="cart-area"></section>
+    <aside id="summary-area" class="summary"></aside>
 
-            <section id="cart-summary" class="hidden">
-                <h3>خلاصہ آرڈر (Order Summary)</h3>
-                <div class="summary-details">
-                    <p>پروڈکٹس کی کل قیمت: <span id="sub-total">PKR 0.00</span></p>
-                    <p>ڈیلیوری چارجز: <span id="shipping-cost">PKR 500.00</span></p>
-                    <div class="total-line">
-                        <h4>ادا کی جانے والی کل رقم:</h4>
-                        <h4 id="grand-total">PKR 500.00</h4>
-                    </div>
-                </div>
-                
-                <a href="checkout.html" class="primary-checkout-btn">چیک آؤٹ کے لیے آگے بڑھیں</a>
-                <a href="products.html" class="continue-shopping">↩ مزید شاپنگ کریں</a>
-            </section>
-        </div>
-    </main>
+    <div class="actions">
+      <button id="btn-clear" class="danger">Clear cart</button>
+      <button id="btn-export" class="btn">Export cart</button>
+      <button id="btn-import" class="btn secondary">Import cart</button>
+      <a href="checkout.html" id="btn-checkout" class="btn">Checkout</a>
+    </div>
+  </main>
 
-    <footer id="main-footer">
-         <!-- Re-use the footer from index.html here -->
-         <div class="footer-bottom">
-            <p>&copy; 2025 MAH Store. تمام حقوق محفوظ ہیں۔</p>
-        </div>
-    </footer>
-
-    <!-- New JS file for handling cart/checkout logic -->
-    <script src="cart_checkout.js"></script> 
+  <script src="main.js"></script>
+  <script src="cart_checkout.js"></script>
 </body>
 </html>
