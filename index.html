@@ -1,90 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Ehsan Collection</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAH Store Handcrafted E-commerce</title>
+    <!-- Linking the main styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome/Icons for a professional, modern look -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body>
+    
+    <!-- 1. HEADER SECTION - As discussed (Responsive Navigation) -->
+    <header class="main-header">
+        <div class="container">
+            <a href="index.html" class="logo">MAH <span>Store</span></a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#products">Shop</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="#"><i class="fas fa-shopping-cart"></i> Cart (<span id="cart-count">0</span>)</a>
+                <a href="dashboard.html"><i class="fas fa-user-circle"></i> Account</a>
+                <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </header>
 
-  <!-- Top bar with Admin / SuperAdmin login -->
-  <header class="bg-white shadow sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
-      <div class="flex items-center gap-4">
-        <a href="admin.html" class="flex items-center gap-3">
-          <img id="site-logo" src="logo.png" alt="Ehsan Collection" class="h-12 w-auto"/>
-          <span class="text-3xl font-extrabold tracking-wide">Ehsan Collection</span>
-        </a>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <button id="cart-button" class="relative bg-white border px-3 py-2 rounded-md shadow-sm">
-          Cart <span id="cart-badge" class="ml-2 inline-block bg-red-500 text-white text-xs px-2 py-0 rounded-full">0</span>
-        </button>
-
-        <a href="admin.html" id="admin-top-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hidden">Admin</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <main class="max-w-6xl mx-auto p-6">
-    <section class="text-center py-10 bg-white rounded-xl mb-6">
-      <h1 class="hero-title text-4xl font-extrabold mb-2">Ehsan Collection</h1>
-      <p class="hero-subtext text-gray-600">International standard responsive online shop — no customer login required.</p>
+    <!-- 2. HERO SECTION / BANNER -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Elevate Your Style. Find Your Next Favorite.</h1>
+            <p>International quality products, delivered to your door. Shop the latest collections now.</p>
+            <a href="#products" class="btn-primary">Shop Now</a>
+        </div>
     </section>
 
-    <!-- Products grid -->
-    <section id="products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></section>
-
-    <!-- Bank Accounts Display -->
-    <section id="bank-display" class="bg-white p-6 rounded-xl shadow mt-8">
-      <h2 class="text-2xl font-bold mb-4 text-center">Bank Accounts</h2>
-      <div id="bank-list" class="space-y-4 text-center text-gray-700">
-        <!-- Filled dynamically from admin panel -->
-      </div>
+    <!-- 3. FEATURED PRODUCTS SECTION -->
+    <section id="products" class="products-section container">
+        <h2>Featured Products</h2>
+        <div class="product-grid" id="product-list">
+            <!-- Products will be dynamically inserted here via main.js -->
+        </div>
     </section>
 
-    <!-- Checkout & info -->
-    <section id="contact" class="mt-8 text-center text-gray-600">
-      <p>Questions? WhatsApp:
-        <a href="https://wa.me/923018067880" target="_blank" rel="noopener" class="text-green-600 font-semibold">
-          +92 301 8067880
-        </a>
-      </p>
-    </section>
-  </main>
+    <!-- 4. FOOTER -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 MAH Store. All rights reserved. | International E-commerce Standard</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><a href="https://wa.me/923018067880" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
 
-  <!-- WhatsApp floating -->
-  <a href="https://wa.me/923018067880" target="_blank" rel="noopener" class="whatsapp-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M..."/></svg>
-    <span>WhatsApp</span>
-  </a>
-
-  <!-- Cart JS -->
-  <script src="main.js"></script>
-
-  <script>
-    // Load bank accounts from localStorage (correct key)
-    function loadBanks() {
-      const bankList = document.getElementById('bank-list');
-      const banks = JSON.parse(localStorage.getItem('ehsan_banks_v1')) || [];
-
-      bankList.innerHTML = banks.length === 0
-        ? '<p class="text-gray-500">No bank accounts added yet.</p>'
-        : banks.map(b => `
-          <div class='p-4 border rounded-lg shadow-sm'>
-            <p><strong>Bank:</strong> ${b.name}</p>
-            <p><strong>Account No:</strong> ${b.acc}</p>
-            <p><strong>IBAN:</strong> ${b.iban}</p>
-          </div>
-        `).join('');
-    }
-
-    loadBanks();
-  </script>
-
+    <!-- Linking the main functionality script -->
+    <script src="main.js"></script>
 </body>
 </html>
