@@ -6,43 +6,80 @@
   <title>Admin Panel - ZentroMall</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-6" onload="checkLogin(); loadOrders(); loadProducts(); loadBanners()">
+<body class="bg-gray-900 text-white min-h-screen p-6" onload="checkLogin(); loadAll()">
 
   <div class="max-w-7xl mx-auto">
-    <h1 class="text-5xl font-bold text-center mb-8 text-yellow-400">ADMIN PANEL</h1>
-    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded-lg mb-6 float-right">Logout</button>
-
-    <!-- Add Product -->
-    <div class="bg-gray-800 rounded-2xl p-8 mb-8">
-      <h2 class="text-3xl font-bold text-green-400 mb-6">Add New Product</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <input id="pName" placeholder="Product Name" class="p-4 rounded bg-gray-700">
-        <input id="pPrice" type="number" placeholder="Price (PKR)" class="p-4 rounded bg-gray-700">
-        <input id="pDesc" placeholder="Description" class="p-4 rounded bg-gray-700">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-10">
+      <h1 class="text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-500">
+        ADMIN PANEL
+      </h1>
+      <div class="flex gap-4">
+        <button onclick="changePassword()" class="bg-orange-600 hover:bg-orange-700 px-8 py-4 rounded-xl font-bold">Change Password</button>
+        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-xl font-bold">Logout</button>
       </div>
-      <input type="file" id="pImage" accept="image/*,video/*" class="p-4 bg-gray-700 text-white w-full mb-4">
-      <button onclick="addProduct()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-5 rounded-xl text-2xl font-bold">
-        ADD PRODUCT
-      </button>
     </div>
 
-    <!-- Show All Products -->
-    <h2 class="text-3xl font-bold mb-6 text-cyan-400">All Products (${products.length})</h2>
-    <div id="productList" class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12"></div>
+    <!-- Tabs -->
+    <div class="flex gap-8 mb-10 border-b-4 border-gray-700">
+      <button onclick="showTab('products')" id="tab-products" class="tab-btn active pb-4 text-2xl font-bold border-b-4 border-yellow-400">Products</button>
+      <button onclick="showTab('orders')"   id="tab-orders"   class="tab-btn pb-4 text-2xl font-bold">Orders</button>
+      <button onclick="showTab('banners')"  id="tab-banners"  class="tab-btn pb-4 text-2xl font-bold">Flash Banner</button>
+    </div>
 
-    <!-- Orders History -->
-    <div class="bg-gray-800 rounded-2xl p-8">
-      <h2 class="text-3xl font-bold mb-6 text-orange-400">Order History</h2>
-      <button onclick="exportToExcel()" class="bg-blue-600 px-6 py-3 rounded mb-4">Export Excel</button>
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-700">
-            <tr>
-              <th>#</th><th>Date</th><th>Name</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th><th>Tracking ID</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="orderBody"></tbody>
-        </table>
+    <!-- === Products Tab === -->
+    <div id="products" class="tab-content">
+      <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
+        <h2 class="text-4xl font-bold text-green-400 mb-8">Add New Product</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <input id="pName" placeholder="Product Name" class="p-5 rounded-xl bg-gray-700 text-xl">
+          <input id="pPrice" type="number" placeholder="Price (PKR)" class="p-5 rounded-xl bg-gray-700 text-xl">
+          <input id="pDesc" placeholder="Description" class="p-5 rounded-xl bg-gray-700 text-xl">
+          <input type="file" id="pImage" accept="image/*,video/*" class="p-5 bg-gray-700 text-white">
+        </div>
+        <button onclick="addProduct()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 py-6 rounded-xl text-3xl font-bold hover:scale-105 transition">
+          ADD PRODUCT
+        </button>
+
+        <h2 class="text-4xl font-bold text-cyan-400 mt-16 mb-8">All Products (${products.length})</h2>
+        <div id="productList" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8"></div>
+      </div>
+    </div>
+
+    <!-- === Orders Tab === -->
+    <div id="orders" class="tab-content hidden">
+      <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-4xl font-bold text-orange-400">All Orders (${orders.length})</h2>
+          <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 px-10 py-5 rounded-xl text-2xl font-bold">Export Excel</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-center">
+            <thead class="bg-gray-700 text-yellow-400">
+              <tr>
+                <th class="py-5">#</th><th>Date</th><th>Name</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th><th>Tracking ID</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orderBody" class="text-lg"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- === Banners Tab === -->
+    <div id="banners" class="tab-content hidden">
+      <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
+        <h2 class="text-4xl font-bold text-pink-400 mb-8">Flash Sale Banner</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <input id="bannerText" placeholder="Banner Text (e.g. EID SALE 50% OFF)" class="p-6 rounded-xl bg-gray-700 text-xl">
+          <input type="file" id="bannerMedia" accept="image/*,video/*" class="p-6 bg-gray-700 text-white">
+        </div>
+        <button onclick="addBanner()" class="w-full bg-gradient-to-r from-orange-600 to-red-600 py-6 rounded-xl text-3xl font-bold hover:scale-105 transition">
+          ADD BANNER
+        </button>
+
+        <h3 class="text-3xl font-bold mt-12 mb-6 text-cyan-400">Current Banners</h3>
+        <div id="bannerList" class="space-y-6"></div>
       </div>
     </div>
   </div>
@@ -51,7 +88,7 @@
   <script>
     function checkLogin() {
       if (localStorage.getItem("zm_admin_logged") !== "true") {
-        alert("Please login first!");
+        alert("Login Required!");
         location.href = "admin.html";
       }
     }
@@ -59,139 +96,178 @@
       localStorage.removeItem("zm_admin_logged");
       location.href = "admin.html";
     }
-
-    // Show Products (اب دکھائی دیں گی!)
-    function loadProducts() {
-      const list = document.getElementById("productList");
-      list.innerHTML = "";
-      if (products.length === 0) {
-        list.innerHTML = "<p class='text-center text-2xl text-gray-500 col-span-4'>No products added yet</p>";
-        return;
+    function changePassword() {
+      const np = prompt("Enter new password (minimum 4 characters):");
+      if (np && np.length >= 4) {
+        localStorage.setItem("zm_admin_pass", np);
+        alert("Password changed successfully!");
+      } else if (np) {
+        alert("Password too short!");
       }
-      products.forEach(p => {
-        list.innerHTML += `
-          <div class="bg-gray-700 rounded-xl p-6 text-center shadow-xl">
-            ${p.image.startsWith('data:video') ? 
-              `<video src="${p.image}" class="w-full h-48 object-cover rounded mb-4" controls></video>` :
-              `<img src="${p.image}" class="w-full h-48 object-cover rounded mb-4">`
-            }
-            <h3 class="text-xl font-bold mb-2">${p.name}</h3>
-            <p class="text-green-400 text-2xl font-bold mb-2">${formatPrice(p.price)}</p>
-            <p class="text-sm text-gray-300 mb-4">${p.desc}</p>
-            <button onclick="deleteProduct(${p.id})" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded w-full font-bold">
-              Delete
-            </button>
-          </div>`;
-      });
     }
 
-    // Add Product (اب فوراً دکھے گا)
+    function showTab(tab) {
+      document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active", "border-yellow-400"));
+      document.getElementById(tab).classList.remove("hidden");
+      document.getElementById("tab-" + tab).classList.add("active", "border-yellow-400");
+      if (tab === "products") loadProducts();
+      if (tab === "orders") loadOrders();
+      if (tab === "banners") loadBanners();
+    }
+
+    function loadAll() {
+      loadProducts(); loadOrders(); loadBanners();
+    }
+
+    // Products
+    function loadProducts() {
+      const list = document.getElementById("productList");
+      list.innerHTML = products.length === 0 
+        ? "<p class='col-span-6 text-center text-3xl text-gray-500 py-20'>No products yet</p>"
+        : products.map(p => `
+          <div class="bg-gray-700 rounded-2xl overflow-hidden shadow-xl hover:scale-105 transition">
+            ${p.image.startsWith("data:video")
+              ? `<video src="${p.image}" class="w-full h-56 object-cover" controls></video>`
+              : `<img src="${p.image}" class="w-full h-56 object-cover">`
+            }
+            <div class="p-5">
+              <h3 class="font-bold text-lg">${p.name}</h3>
+              <p class="text-green-400 text-2xl font-bold">${formatPrice(p.price)}</p>
+              <button onclick="deleteProduct(${p.id})" class="w-full mt-4 bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold">Delete</button>
+            </div>
+          </div>
+        `).join("");
+    }
+
     function addProduct() {
       const name = document.getElementById("pName").value.trim();
       const price = Number(document.getElementById("pPrice").value);
       const desc = document.getElementById("pDesc").value.trim();
       const file = document.getElementById("pImage").files[0];
 
-      if (!name || !price) {
-        alert("Name and Price are required!");
-        return;
-      }
+      if (!name || !price) return alert("Name & Price required!");
 
       if (file) {
-        handleImageUpload({target: {files: [file]}}, (mediaData) => {
-          const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-          products.push({id: newId, name, price, image: mediaData, desc});
-          saveData();
-          alert("Product Added Successfully!");
-          loadProducts();
-          clearForm();
+        handleImageUpload({target: {files: [file]}}, (data) => {
+          const id = products.length ? Math.max(...products.map(x => x.id)) + 1 : 1;
+          products.push({id, name, price, image: data, desc});
+          saveData(); loadProducts(); clearProductForm();
+          alert("Product Added!");
         });
       } else {
-        const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-        products.push({id: newId, name, price, image: "https://via.placeholder.com/300", desc});
-        saveData();
-        alert("Product Added (with default image)!");
-        loadProducts();
-        clearForm();
+        const id = products.length ? Math.max(...products.map(x => x.id)) + 1 : 1;
+        products.push({id, name, price, image: "https://via.placeholder.com/400", desc});
+        saveData(); loadProducts(); clearProductForm();
+        alert("Product Added (Default Image)!");
       }
     }
 
     function deleteProduct(id) {
-      if (confirm("Delete this product permanently?")) {
+      if (confirm("Delete permanently?")) {
         products = products.filter(p => p.id !== id);
-        saveData();
-        loadProducts();
+        saveData(); loadProducts();
       }
     }
 
-    function clearForm() {
+    function clearProductForm() {
       document.getElementById("pName").value = "";
       document.getElementById("pPrice").value = "";
       document.getElementById("pDesc").value = "";
       document.getElementById("pImage").value = "";
     }
 
-    // Orders (پہلے جیسا ہی)
+    // Orders
     function loadOrders() {
       const tbody = document.getElementById("orderBody");
-      tbody.innerHTML = orders.length === 0 ? "<tr><td colspan='9' class='text-center py-10 text-2xl text-gray-500'>No orders yet</td></tr>" : 
-      orders.slice().reverse().map((o, i) => {
-        const realIdx = orders.length - 1 - i;
-        const items = o.items.map(it => `${it.name || "Unknown"} × ${it.qty}`).join("<br>");
-        return `
-          <tr class="border-b border-gray-600">
-            <td>${orders.length - i}</td>
-            <td>${o.date}</td>
-            <td>${o.customer.name}</td>
-            <td>${o.customer.phone}</td>
-            <td>${items}</td>
-            <td>${formatPrice(o.total)}</td>
-            <td>
-              <button onclick="toggleStatus(${realIdx})" class="${o.status==='complete'?'bg-green-600':'bg-yellow-600'} px-6 py-2 rounded">
-                ${o.status==='complete'?'Complete':'Pending'}
-              </button>
-            </td>
-            <td>
-              <input type="text" value="${o.tracking_id||''}" onchange="saveTracking(${realIdx}, this.value)" class="bg-gray-700 px-4 py-2 rounded w-32">
-            </td>
-            <td>
-              <button onclick="deleteOrder(${realIdx})" class="bg-red-600 px-4 py-2 rounded">Delete</button>
-            </td>
-          </tr>`;
-      }).join("");
+      tbody.innerHTML = orders.length === 0 
+        ? "<tr><td colspan='9' class='py-20 text-3xl text-gray-500'>No orders yet</td></tr>"
+        : orders.slice().reverse().map((o, i) => {
+            const idx = orders.length - 1 - i;
+            const items = o.items.map(it => `${it.name} × ${it.qty}`).join("<br>");
+            return `<tr class="border-b border-gray-700 hover:bg-gray-800">
+              <td class="font-bold">${orders.length - i}</td>
+              <td>${o.date}</td>
+              <td><strong>${o.customer.name}</strong></td>
+              <td>${o.customer.phone}</td>
+              <td class="text-left">${items}</td>
+              <td class="text-2xl font-bold text-green-400">${formatPrice(o.total)}</td>
+              <td>
+                <button onclick="toggleStatus(${idx})" class="${o.status==='complete'?'bg-green-600':'bg-yellow-600'} px-6 py-3 rounded-lg font-bold">
+                  ${o.status==='complete'?'Complete':'Pending'}
+                </button>
+              </td>
+              <td>
+                <input type="text" value="${o.tracking_id||''}" onchange="saveTracking(${idx},this.value)" class="bg-gray-700 px-4 py-3 rounded-lg w-40 text-center font-bold">
+              </td>
+              <td>
+                <button onclick="deleteOrder(${idx})" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-bold">Delete</button>
+              </td>
+            </tr>`;
+          }).join("");
     }
 
     function toggleStatus(i) { orders[i].status = orders[i].status === "complete" ? "pending" : "complete"; saveData(); loadOrders(); }
-    function saveTracking(i, val) { orders[i].tracking_id = val.trim(); saveData(); }
-    function deleteOrder(i) { if(confirm("Delete?")) { orders.splice(i,1); saveData(); loadOrders(); } }
+    function saveTracking(i, v) { orders[i].tracking_id = v.trim(); saveData(); }
+    function deleteOrder(i) { if(confirm("Delete permanently?")) { orders.splice(i,1); saveData(); loadOrders(); } }
 
     function exportToExcel() {
-      if(orders.length===0) return alert("No orders!");
-      let csv = "No,Date,Name,Phone,Items,Total,Status,Tracking\n";
+      if(!orders.length) return alert("No orders!");
+      let csv = "\uFEFFNo,Date,Name,Phone,Items,Total,Status,Tracking\n";
       orders.forEach((o,i) => {
-        const items = o.items.map(it => `${it.name} x${it.qty}`).join(" | ");
-        csv += `${i+1},"${o.date}","${o.customer.name}","${o.customer.phone}","${items}","${o.total}","${o.status}","${o.tracking_id||''}"\n`;
+        csv += `${i+1},"${o.date}","${o.customer.name}","${o.customer.phone}","${o.items.map(x=>x.name+' x'+x.qty).join(' | ')}","${o.total}","${o.status}","${o.tracking_id||''}"\n`;
       });
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "ZentroMall_Orders.csv";
-      link.click();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"}));
+      a.download = "ZentroMall_Orders_" + new Date().toISOString().slice(0,10) + ".csv";
+      a.click();
     }
 
-    // Banners (پہلے جیسا)
-    let banners = JSON.parse(localStorage.getItem("zm_banners") || "[]");
+    // Banners
     function loadBanners() {
-      document.getElementById("bannerList").innerHTML = banners.map((t,i) => `
-        <div class="bg-gray-700 p-4 rounded flex justify-between">
-          <span>${t}</span>
-          <button onclick="banners.splice(i,1); localStorage.setItem('zm_banners',JSON.stringify(banners)); loadBanners()" class="text-red-400">Delete</button>
-        </div>
-      `).join("") || "<p class='text-gray-500'>No banner</p>";
+      const list = document.getElementById("bannerList");
+      list.innerHTML = banners.length === 0 
+        ? "<p class='text-center text-3xl text-gray-500 py-20'>No banner added</p>"
+        : banners.map((b,i) => `
+          <div class="bg-gray-700 rounded-2xl p-6 flex justify-between items-center hover:bg-gray-600 transition">
+            <div>
+              <p class="text-2xl font-bold">${b.text || "No Text"}</p>
+              ${b.media ? (b.media.startsWith("data:video")
+                ? `<video src="${b.media}" class="w-80 h-40 object-cover mt-4 rounded-lg" controls></video>`
+                : `<img src="${b.media}" class="w-80 h-40 object-cover mt-4 rounded-lg">`) : ""}
+            </div>
+            <button onclick="deleteBanner(${i})" class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-xl font-bold text-xl">Delete</button>
+          </div>
+        `).join("");
     }
+
     function addBanner() {
-      const t = document.getElementById("bannerText").value.trim();
-      if(t){ banners.push(t); localStorage.setItem("zm_banners", JSON.stringify(banners)); loadBanners(); document.getElementById("bannerText").value=""; }
+      const text = document.getElementById("bannerText").value.trim();
+      const file = document.getElementById("bannerMedia").files[0];
+      if (!text) return alert("Banner text required!");
+
+      if (file) {
+        handleImageUpload({target: {files: [file]}}, (data) => {
+          banners.push({text, media: data});
+          saveData(); loadBanners();
+          document.getElementById("bannerText").value = "";
+          document.getElementById("bannerMedia").value = "";
+          alert("Banner Added with Media!");
+        });
+      } else {
+        banners.push({text, media: ""});
+        saveData(); loadBanners();
+        document.getElementById("bannerText").value = "";
+        alert("Text Banner Added!");
+      }
+    }
+
+    function deleteBanner(i) {
+      if (confirm("Delete this banner?")) {
+        banners.splice(i,1);
+        saveData();
+        loadBanners();
+      }
     }
   </script>
 </body>
