@@ -7,7 +7,12 @@
   <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .qty-btn { width: 45px; height: 45px; font-size: 24px; }
+    .qty-btn { width: 50px; height: 50px; font-size: 24px; transition: transform 0.2s; }
+    .qty-btn:hover { transform: scale(1.1); }
+    .cart-item { transition: transform 0.3s, background-color 0.3s; }
+    .cart-item:hover { transform: scale(1.02); background-color: rgba(255,255,255,0.05); }
+    .empty-cart { animation: bounce 1s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
   </style>
 </head>
 <body class="bg-gradient-to-br from-purple-900 via-indigo-900 to-black text-white min-h-screen">
@@ -16,7 +21,7 @@
   <nav class="bg-black bg-opacity-90 backdrop-blur-lg p-6 sticky top-0 z-50 shadow-2xl">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <a href="index.html" class="flex items-center gap-4">
-        <img src="logo.png" alt="ZentroMall" class="h-14 rounded-full">
+        <img src="logo.png" alt="ZentroMall Logo" class="h-14 rounded-full">
         <h1 class="text-4xl font-extrabold text-yellow-400">ZentroMall</h1>
       </a>
       <div class="flex gap-6 items-center">
@@ -69,7 +74,7 @@
     function renderCart() {
       const container = document.getElementById("cart-items");
       if (cart.length === 0) {
-        container.innerHTML = `<p class="text-center text-4xl text-gray-500 py-20">Your cart is empty 😔</p>`;
+        container.innerHTML = `<p class="text-center text-4xl text-gray-500 py-20 empty-cart">Your cart is empty 😔</p>`;
         document.getElementById("subtotal").textContent = "₨0";
         document.getElementById("total").textContent = "₨0";
         updateCartCount();
@@ -83,10 +88,10 @@
         subtotal += p.price * item.qty;
 
         return `
-          <div class="bg-gray-800 rounded-3xl p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 hover:bg-gray-700 transition">
+          <div class="cart-item bg-gray-800 rounded-3xl p-8 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
             ${p.image.startsWith("data:video")
               ? `<video src="${p.image}" class="w-32 h-32 object-cover rounded-2xl" controls></video>`
-              : `<img src="${p.image}" class="w-32 h-32 object-cover rounded-2xl">`
+              : `<img src="${p.image}" class="w-32 h-32 object-cover rounded-2xl" alt="${p.name}">`
             }
             <div class="flex-1 text-center md:text-left">
               <h3 class="text-3xl font-bold">${p.name}</h3>
@@ -94,13 +99,13 @@
               <p class="text-2xl font-bold text-green-400 mt-4">${formatPrice(p.price)} each</p>
             </div>
             <div class="flex items-center gap-6">
-              <button onclick="changeQty(${p.id}, -1)" class="qty-btn bg-red-600 hover:bg-red-700 rounded-full">-</button>
+              <button onclick="changeQty(${p.id}, -1)" class="qty-btn bg-red-600 hover:bg-red-700 rounded-full" aria-label="Decrease quantity">-</button>
               <span class="text-4xl font-bold w-16 text-center">${item.qty}</span>
-              <button onclick="changeQty(${p.id}, 1)" class="qty-btn bg-green-600 hover:bg-green-700 rounded-full">+</button>
+              <button onclick="changeQty(${p.id}, 1)" class="qty-btn bg-green-600 hover:bg-green-700 rounded-full" aria-label="Increase quantity">+</button>
             </div>
             <div class="text-right">
               <p class="text-3xl font-bold text-yellow-400">${formatPrice(p.price * item.qty)}</p>
-              <button onclick="removeFromCart(${p.id})" class="mt-4 bg-red-600 hover:bg-red-700 px-8 py-4 rounded-xl font-bold text-xl">
+              <button onclick="confirmRemove(${p.id})" class="mt-4 bg-red-600 hover:bg-red-700 px-8 py-4 rounded-xl font-bold text-xl">
                 Remove
               </button>
             </div>
@@ -117,29 +122,40 @@
       const item = cart.find(x => x.id === id);
       if (item) {
         item.qty += delta;
-        if (item.qty <= 0) removeFromCart(id);
-        else {
-          saveData();
-          renderCart();
-        }
+        if (item.qty <= 0) confirmRemove(id);
+        else { saveData(); renderCart(); }
       }
     }
 
-    function removeFromCart(id) {
-      if (confirm("Remove this item?")) {
+    function confirmRemove(id) {
+      const modal = document.createElement("div");
+      modal.className = "fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50";
+      modal.innerHTML = `
+        <div class="bg-gray-900 p-12 rounded-3xl shadow-2xl text-center max-w-md">
+          <h2 class="text-3xl font-bold mb-6">Remove this item?</h2>
+          <div class="flex justify-center gap-6">
+            <button id="yesBtn" class="px-8 py-4 bg-red-600 hover:bg-red-700 rounded-xl font-bold text-xl">Yes</button>
+            <button id="noBtn" class="px-8 py-4 bg-green-600 hover:bg-green-700 rounded-xl font-bold text-xl">No</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      document.getElementById("yesBtn").onclick = () => {
         cart = cart.filter(x => x.id !== id);
         saveData();
         renderCart();
-      }
+        modal.remove();
+      };
+      document.getElementById("noBtn").onclick = () => modal.remove();
     }
 
     function applyCoupon() {
       const code = document.getElementById("coupon").value.trim().toUpperCase();
       const msg = document.getElementById("coupon-msg");
       const discountMsg = document.getElementById("discount-msg");
+      const subtotal = parseInt(document.getElementById("subtotal").textContent.replace(/[^0-9]/g,""));
 
       if (code === "ZENTRO50") {
-        discount = Math.round(parseInt(document.getElementById("subtotal").textContent.replace(/[^0-9]/g,"")) * 0.5);
+        discount = Math.round(subtotal * 0.5);
         msg.textContent = "🎉 ZENTRO50 Applied! 50% OFF!";
         discountMsg.innerHTML = `Discount: <span class="text-pink-400">-₨${discount.toLocaleString()}</span>`;
       } else if (code === "EID100") {
