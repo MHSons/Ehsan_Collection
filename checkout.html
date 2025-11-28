@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>چیکنگ آؤٹ – ZentroMall</title>
-  <link rel="icon" href="logo.png"/>
+  <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-purple-900 to-indigo-900 text-white min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white text-black p-10 rounded-3xl shadow-2xl max-w-2xl w-full">
+<body class="bg-gradient-to-br from-purple-900 to-indigo-900 text-white min-h-screen flex items-center justify-center p-6">
+
+  <div class="bg-white text-black rounded-3xl shadow-2xl p-10 max-w-2xl w-full">
     <img src="logo.png" alt="ZentroMall" class="h-20 mx-auto mb-6">
     <h1 class="text-4xl font-bold text-center mb-8 text-indigo-800">آرڈر مکمل کریں</h1>
-    
+
     <form onsubmit="placeOrder(event)">
       <input type="text" id="name" placeholder="پورا نام" class="w-full p-4 rounded mb-4 text-right" required>
       <input type="tel" id="phone" placeholder="فون نمبر (WhatsApp)" class="w-full p-4 rounded mb-4 text-right" required>
-      <textarea id="address" placeholder="مکمل ایڈریس (گلی، محلہ، شہر)" class="w-full p-4 rounded mb-6 h-32 text-right" required></textarea>
-      
-      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-xl text-2xl font-bold">
+      <textarea id="address" placeholder="مکمل ایڈریس (گلی، محلہ، شہر، صوبہ)" class="w-full p-4 rounded mb-6 h-32 text-right" required></textarea>
+
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-6 rounded-xl text-2xl font-bold transition">
         WhatsApp پر آرڈر کریں
       </button>
     </form>
   </div>
 
-  <!-- بس یہ ایک لائن رکھو -->
+  <!-- صرف main.js لوڈ کرو – کوئی دوسرا script نہیں -->
   <script src="main.js"></script>
+
 </body>
 </html>
