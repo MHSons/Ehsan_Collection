@@ -1,59 +1,110 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="ur" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="View details of products at ZentroMall." />
-  <title>Product Detail – ZentroMall</title>
-  <link rel="icon" href="logo.png" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پروڈکٹ کی تفصیل – ZentroMall</title>
+  <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    .zoom:hover { transform: scale(1.05); transition: 0.4s; }
+  </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
-  <header role="banner" class="bg-indigo-800 dark:bg-indigo-950 shadow-xl sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="flex items-center gap-4">
-        <img src="logo.png" alt="ZentroMall Logo" class="h-14 rounded-lg" />
-        <h1 class="text-2xl font-bold">ZentroMall</h1>
-      </a>
-      <nav role="navigation" class="flex gap-6">
-        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
-        <a href="admin.html" class="bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">Admin</a>
-      </nav>
-    </div>
-  </header>
+<body class="bg-gradient-to-br from-purple-900 via-indigo-900 to-black text-white min-h-screen">
 
-  <div class="max-w-7xl mx-auto px-4 py-10">
-    <div id="product-detail" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
+  <!-- Navbar -->
+  <nav class="bg-black bg-opacity-90 backdrop-blur-lg p-6 sticky top-0 z-50 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="index.html" class="flex items-center gap-4">
+        <img src="logo.png" alt="ZentroMall" class="h-14 rounded-full shadow-lg">
+        <h1 class="text-4xl font-extrabold text-yellow-400">ZentroMall</h1>
+      </a>
+      <div class="flex gap-6 items-center text-xl">
+        <a href="cart.html" class="hover:text-yellow-400">کارٹ (<span id="cart-count">0</span>)</a>
+        <a href="my-orders.html" class="hover:text-yellow-400">میرے آرڈرز</a>
+        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">ایڈمن</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Product Detail -->
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div id="product-detail" class="grid grid-cols-1 lg:grid-cols-2 gap-12"></div>
   </div>
 
   <script src="main.js"></script>
   <script>
-    const id = new URLSearchParams(window.location.search).get("id");
-    const product = products.find(p => p.id == id);
-    let viewed = JSON.parse(localStorage.getItem("zm_viewed") || "[]");
-    viewed.unshift(id); viewed = [...new Set(viewed)].slice(0, 8);
-    localStorage.setItem("zm_viewed", JSON.stringify(viewed));
-    document.getElementById("product-detail").innerHTML = `
-      <img src="${product.image}" alt="${product.name}" class="w-full h-96 object-cover rounded-2xl shadow-xl hover:scale-105 transition" />
-      <div>
-        <h2 class="text-4xl font-bold mb-4">${product.name}</h2>
-        <p class="text-xl text-gray-600 dark:text-gray-300 mb-4">${product.desc}</p>
-        <p class="text-3xl font-bold text-indigo-600 mb-6">₹${product.price.toLocaleString()}</p>
-        <div class="flex gap-2 mb-4">
-          <button onclick="addToCart(${product.id})" class="w-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-lg">Add to Cart</button>
-          <button onclick="toggleWishlist(${product.id})" class="w-1/2 bg-red-500 text-white py-4 rounded-lg">❤️ Wishlist</button>
-          <button onclick="buyNow(${product.id})" class="w-full mt-4 bg-green-600 text-white py-4 rounded-lg font-bold">⚡ Buy Now</button>
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = parseInt(urlParams.get("id"));
+    const product = products.find(p => p.id === id);
+
+    if (!product) {
+      document.getElementById("product-detail").innerHTML = `
+        <div class="col-span-2 text-center py-20">
+          <p class="text-5xl text-gray-500">پروڈکٹ نہیں ملی</p>
+          <a href="index.html" class="mt-8 inline-block bg-yellow-500 text-black px-12 py-6 rounded-full text-2xl font-bold">ہوم پر جائیں</a>
+        </div>`;
+    } else {
+      // Recently Viewed میں ایڈ کرو
+      let viewed = JSON.parse(localStorage.getItem("zm_viewed") || "[]");
+      viewed = [id, ...viewed.filter(x => x !== id)].slice(0, 10);
+      localStorage.setItem("zm_viewed", JSON.stringify(viewed));
+
+      document.getElementById("product-detail").innerHTML = `
+        <!-- Image / Video -->
+        <div class="zoom">
+          ${product.image.startsWith("data:video")
+            ? `<video src="${product.image}" class="w-full h-96 md:h-full object-cover rounded-3xl shadow-2xl" controls loop autoplay muted playsinline></video>`
+            : `<img src="${product.image}" class="w-full h-96 md:h-full object-cover rounded-3xl shadow-2xl" alt="${product.name}">`
+          }
         </div>
-        <p class="text-sm text-gray-600 mb-2">🔥 ${Math.floor(Math.random() * 50)} people viewing this</p>
-        <p class="text-sm text-green-600 mb-4">⚡ ${Math.floor(Math.random() * 20)} bought in last hour</p>
-        <div class="mt-6">
-          <h3 class="text-2xl font-bold mb-2">Reviews</h3>
-          <p class="text-gray-600 dark:text-gray-300">No reviews yet. Be the first!</p>
-          <textarea placeholder="Write a review..." class="w-full p-4 mt-2 rounded bg-gray-100 dark:bg-gray-800" rows="4" aria-label="Write review"></textarea>
-          <button class="mt-2 bg-green-600 text-white px-6 py-2 rounded" aria-label="Submit review">Submit</button>
-        </div>
-      </div>`;
+
+        <!-- Details -->
+        <div class="space-y-8">
+          <div>
+            <h1 class="text-5xl font-extrabold text-yellow-400 mb-4">${product.name}</h1>
+            <p class="text-2xl text-gray-300 leading-relaxed">${product.desc || "کوئی تفصیل نہیں"}</p>
+          </div>
+
+          <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
+            <p class="text-6xl font-extrabold text-green-400">${formatPrice(product.price)}</p>
+            <p class="text-xl text-gray-400 mt-2">کیش آن ڈیلیوری پورے پاکستان میں</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <button onclick="addToCart(${product.id})" 
+                    class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 rounded-2xl text-3xl font-bold hover:scale-105 transition shadow-lg">
+              کارٹ میں ڈالیں
+            </button>
+            <button onclick="buyNow(${product.id})" 
+                    class="bg-gradient-to-r from-green-600 to-emerald-600 py-6 rounded-2xl text-3xl font-bold hover:scale-105 transition shadow-lg">
+              ابھی خریدیں
+            </button>
+          </div>
+
+          <!-- Fake Live Stats -->
+          <div class="text-center space-y-4 text-xl">
+            <p class="text-pink-400">لوگ اسے دیکھ رہے ہیں</p>
+            <p class="text-green-400">گھنٹے میں خریدے گئے</p>
+          </div>
+
+          <!-- Share -->
+          <div class="text-center pt-8 border-t border-gray-700">
+            <p class="text-gray-400 mb-4">دوستوں کے ساتھ شیئر کریں</p>
+            <div class="flex justify-center gap-6 text-4xl">
+              <a>
+              <a href="https://wa.me/?text=دیکھو یہ زبردست پروڈکٹ: ${encodeURIComponent(window.location.href)}" target="_blank" class="text-green-400 hover:scale-125 transition">WhatsApp</a>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Buy Now فنکشن
+    function buyNow(pid) {
+      addToCart(pid);
+      setTimeout(() => location.href = "checkout.html", 600);
+    }
+
     updateCartCount();
   </script>
 </body>
