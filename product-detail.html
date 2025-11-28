@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>پروڈکٹ کی تفصیل – ZentroMall</title>
+  <title>Product Details – ZentroMall</title>
   <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -20,9 +20,9 @@
         <h1 class="text-4xl font-extrabold text-yellow-400">ZentroMall</h1>
       </a>
       <div class="flex gap-6 items-center text-xl">
-        <a href="cart.html" class="hover:text-yellow-400">کارٹ (<span id="cart-count">0</span>)</a>
-        <a href="my-orders.html" class="hover:text-yellow-400">میرے آرڈرز</a>
-        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">ایڈمن</a>
+        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
+        <a href="my-orders.html" class="hover:text-yellow-400">My Orders</a>
+        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">Admin</a>
       </div>
     </div>
   </nav>
@@ -41,11 +41,11 @@
     if (!product) {
       document.getElementById("product-detail").innerHTML = `
         <div class="col-span-2 text-center py-20">
-          <p class="text-5xl text-gray-500">پروڈکٹ نہیں ملی</p>
-          <a href="index.html" class="mt-8 inline-block bg-yellow-500 text-black px-12 py-6 rounded-full text-2xl font-bold">ہوم پر جائیں</a>
+          <p class="text-5xl text-gray-500">Product Not Found</p>
+          <a href="index.html" class="mt-8 inline-block bg-yellow-500 text-black px-12 py-6 rounded-full text-2xl font-bold">Go Home</a>
         </div>`;
     } else {
-      // Recently Viewed میں ایڈ کرو
+      // Add to Recently Viewed
       let viewed = JSON.parse(localStorage.getItem("zm_viewed") || "[]");
       viewed = [id, ...viewed.filter(x => x !== id)].slice(0, 10);
       localStorage.setItem("zm_viewed", JSON.stringify(viewed));
@@ -63,43 +63,41 @@
         <div class="space-y-8">
           <div>
             <h1 class="text-5xl font-extrabold text-yellow-400 mb-4">${product.name}</h1>
-            <p class="text-2xl text-gray-300 leading-relaxed">${product.desc || "کوئی تفصیل نہیں"}</p>
+            <p class="text-2xl text-gray-300 leading-relaxed">${product.desc || "No description available"}</p>
           </div>
 
           <div class="bg-gray-800 rounded-3xl p-8 shadow-xl">
             <p class="text-6xl font-extrabold text-green-400">${formatPrice(product.price)}</p>
-            <p class="text-xl text-gray-400 mt-2">کیش آن ڈیلیوری پورے پاکستان میں</p>
+            <p class="text-xl text-gray-400 mt-2">Cash on Delivery Available Across Pakistan</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <button onclick="addToCart(${product.id})" 
                     class="bg-gradient-to-r from-indigo-600 to-purple-600 py-6 rounded-2xl text-3xl font-bold hover:scale-105 transition shadow-lg">
-              کارٹ میں ڈالیں
+              Add to Cart
             </button>
             <button onclick="buyNow(${product.id})" 
                     class="bg-gradient-to-r from-green-600 to-emerald-600 py-6 rounded-2xl text-3xl font-bold hover:scale-105 transition shadow-lg">
-              ابھی خریدیں
+              Buy Now
             </button>
           </div>
 
           <!-- Fake Live Stats -->
           <div class="text-center space-y-4 text-xl">
-            <p class="text-pink-400">لوگ اسے دیکھ رہے ہیں</p>
-            <p class="text-green-400">گھنٹے میں خریدے گئے</p>
+            <p class="text-pink-400">People are viewing this</p>
+            <p class="text-green-400">Purchased in last hour</p>
           </div>
 
           <!-- Share -->
           <div class="text-center pt-8 border-t border-gray-700">
-            <p class="text-gray-400 mb-4">دوستوں کے ساتھ شیئر کریں</p>
+            <p class="text-gray-400 mb-4">Share with friends</p>
             <div class="flex justify-center gap-6 text-4xl">
-              <a>
-              <a href="https://wa.me/?text=دیکھو یہ زبردست پروڈکٹ: ${encodeURIComponent(window.location.href)}" target="_blank" class="text-green-400 hover:scale-125 transition">WhatsApp</a>
+              <a href="https://wa.me/?text=Check this amazing product: ${encodeURIComponent(window.location.href)}" target="_blank" class="text-green-400 hover:scale-125 transition">WhatsApp</a>
             </div>
           </div>
         </div>`;
     }
 
-    // Buy Now فنکشن
     function buyNow(pid) {
       addToCart(pid);
       setTimeout(() => location.href = "checkout.html", 600);
