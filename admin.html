@@ -1,62 +1,35 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Manage ZentroMall store as an admin." />
-  <title>Admin – ZentroMall</title>
-  <link rel="icon" href="logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login – ZentroMall</title>
+  <link rel="icon" href="logo.png"/>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-  <div class="max-w-6xl mx-auto p-10">
-    <h1 class="text-5xl font-bold text-center text-yellow-500 mb-10" role="heading">ADMIN PANEL</h1>
-
-    <!-- Add Product -->
-    <div class="bg-gray-800 p-8 rounded-2xl mb-10" role="form">
-      <input id="pname" placeholder="Product Name" class="w-full p-4 mb-4 rounded bg-gray-700" aria-label="Product name" />
-      <input id="pprice" type="number" placeholder="Price" class="w-full p-4 mb-4 rounded bg-gray-700" aria-label="Product price" />
-      <input id="pimage" placeholder="Image URL" class="w-full p-4 mb-4 rounded bg-gray-700" aria-label="Product image URL" />
-      <input id="pdesc" placeholder="Description" class="w-full p-4 mb-6 rounded bg-gray-700" aria-label="Product description" />
-      <button onclick="addProduct()" class="w-full bg-green-600 py-4 rounded text-2xl font-bold hover:bg-green-700" aria-label="Add product">Add Product</button>
-    </div>
-
-    <!-- Products List -->
-    <h2 class="text-3xl mb-6">All Products</h2>
-    <div id="admin-products" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-
-    <!-- Orders -->
-    <h2 class="text-3xl mt-16 mb-6">Recent Orders</h2>
-    <div id="admin-orders" class="space-y-6"></div>
+<body class="bg-gradient-to-br from-indigo-900 to-purple-900 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full text-center">
+    <img src="logo.png" alt="ZentroMall" class="h-24 mx-auto mb-6">
+    <h1 class="text-4xl font-bold mb-8 text-indigo-800">ADMIN LOGIN</h1>
+    
+    <input type="password" id="adminpass" placeholder="Enter Admin Password" class="w-full p-4 rounded-lg border-2 border-indigo-600 text-xl mb-6">
+    <button onclick="checkAdmin()" class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-2xl font-bold">
+      Login as Admin
+    </button>
+    <p class="text-sm text-gray-600 mt-4">Default Password: <strong>asad123</strong> (change kar dena baad mein)</p>
   </div>
 
   <script src="main.js"></script>
   <script>
-    function addProduct() {
-      const name = document.getElementById("pname").value;
-      const price = parseInt(document.getElementById("pprice").value);
-      const image = document.getElementById("pimage").value || "https://via.placeholder.com/400";
-      const desc = document.getElementById("pdesc").value;
-      if (!name || !price) return alert(lang === "ur" ? "نام اور قیمت درکار ہے" : "Fill name & price");
-      const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-      products.push({ id: newId, name, price, image, desc, category: "electronics" });
-      saveData(); alert(lang === "ur" ? "پروڈکٹ شامل ہو گیا!" : "Product added!"); location.reload();
+    function checkAdmin() {
+      const pass = document.getElementById("adminpass").value;
+      if (pass === localStorage.getItem("zm_admin_pass") || pass === "asad123") {
+        localStorage.setItem("zm_admin_logged", "true");
+        window.location.href = "admin-panel.html"; // new protected page
+      } else {
+        alert("❌ Wrong Password!");
+      }
     }
-
-    document.getElementById("admin-products").innerHTML = products.map(p => `
-      <div class="bg-gray-800 p-6 rounded-2xl">
-        <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover rounded" />
-        <h3 class="text-xl font-bold mt-4">${p.name}</h3>
-        <p>₹${p.price.toLocaleString()}</p>
-        <button onclick="if(confirm(lang==='ur'?'حذف کریں؟':'Delete?')){products=products.filter(x=>x.id!==${p.id});saveData();location.reload();}" class="bg-red-600 w-full mt-4 py-3 rounded" aria-label="Delete product">Delete</button>
-      </div>`).join("");
-
-    document.getElementById("admin-orders").innerHTML = orders.slice(-10).reverse().map(o => `
-      <div class="bg-gray-800 p-6 rounded-2xl mb-6">
-        <p><strong>${o.date}</strong> – ₹${o.total.toLocaleString()}</p>
-        <p>Customer: ${o.customer.name} (${o.customer.phone})</p>
-      </div>`).join("");
   </script>
 </body>
 </html>
