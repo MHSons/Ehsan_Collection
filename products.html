@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Products - ZentroMall</title>
+  <link rel="icon" href="logo.png"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-gray-100">
+  <header class="bg-gradient-to-r from-indigo-800 to-purple-900 text-white shadow-2xl sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="logo.png" class="h-14">
+        <h1 class="text-2xl font-bold">ZentroMall</h1>
+      </a>
+      <nav class="flex gap-6">
+        <a href="index.html" class="hover:text-yellow-400">Home</a>
+        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
+        <a href="admin.html" class="bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-10">
+    <input type="text" id="search" placeholder="Search products..." class="w-full p-4 rounded-lg shadow mb-8 text-lg">
+    <div id="all-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    const products = JSON.parse(localStorage.getItem("products"));
+    const container = document.getElementById("all-products");
+    container.innerHTML = products.map(p => `
+      <div class="bg-white rounded-xl shadow-xl overflow-hidden hover-grow">
+        <img src="${p.image}" class="w-full h-64 object-cover">
+        <div class="p-6">
+          <h3 class="text-xl font-bold">${p.name}</h3>
+          <p class="text-gray-600">${p.desc}</p>
+          <p class="text-3xl font-bold text-indigo-600 my-4">₹${p.price.toLocaleString()}</p>
+          <button onclick="addToCart(${p.id})" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-bold">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    `).join("");
+
+    // Live Search
+    document.getElementById("search").addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term));
+      container.innerHTML = filtered.map(p => `...same card code...`).join("");
+    });
+
+    updateCartCount();
+  </script>
+</body>
+</html>
