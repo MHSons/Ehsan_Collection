@@ -1,8 +1,5 @@
-/* style.css */
-body { font-family: 'Segoe UI', sans-serif; }
 .hover-grow { transition: all 0.3s; }
-.hover-grow:hover { transform: translateY(-8px); }
-.glass { backdrop-filter: blur(12px); background: rgba(255,255,255,0.1); }
+.hover-grow:hover { transform: translateY(-10px); }
+.dark img { filter: brightness(0.9); }
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
