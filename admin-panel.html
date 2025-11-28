@@ -10,12 +10,30 @@
 
   <div class="max-w-7xl mx-auto">
     <h1 class="text-5xl font-bold text-center mb-8 text-yellow-400">ADMIN PANEL</h1>
+    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded-lg mb-6 float-right">Logout</button>
+
+    <!-- Add Product -->
+    <div class="bg-gray-800 rounded-2xl p-8 mb-8">
+      <h2 class="text-3xl font-bold text-green-400 mb-6">Add New Product</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <input id="pName" placeholder="Product Name" class="p-4 rounded bg-gray-700">
+        <input id="pPrice" type="number" placeholder="Price (PKR)" class="p-4 rounded bg-gray-700">
+        <input id="pDesc" placeholder="Description" class="p-4 rounded bg-gray-700">
+      </div>
+      <input type="file" id="pImage" accept="image/*,video/*" class="p-4 bg-gray-700 text-white w-full mb-4">
+      <button onclick="addProduct()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-5 rounded-xl text-2xl font-bold">
+        ADD PRODUCT
+      </button>
+    </div>
+
+    <!-- Show All Products -->
+    <h2 class="text-3xl font-bold mb-6 text-cyan-400">All Products (${products.length})</h2>
+    <div id="productList" class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12"></div>
 
     <!-- Orders History -->
-    <div class="bg-gray-800 rounded-2xl p-8 mb-8">
-      <h2 class="text-3xl font-bold mb-6">Order History</h2>
-      <input type="text" id="searchOrder" placeholder="Search orders..." class="w-full p-4 rounded bg-gray-700 mb-4" onkeyup="searchOrders()">
-      <button onclick="exportToExcel()" class="bg-blue-600 px-6 py-3 rounded mb-4">Export to Excel</button>
+    <div class="bg-gray-800 rounded-2xl p-8">
+      <h2 class="text-3xl font-bold mb-6 text-orange-400">Order History</h2>
+      <button onclick="exportToExcel()" class="bg-blue-600 px-6 py-3 rounded mb-4">Export Excel</button>
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-700">
@@ -27,159 +45,153 @@
         </table>
       </div>
     </div>
-
-    <!-- Products Management -->
-    <div class="bg-gray-800 rounded-2xl p-8 mb-8">
-      <h2 class="text-3xl font-bold mb-6">Add/Edit Product</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input id="prodName" placeholder="Product Name" class="p-4 rounded bg-gray-700">
-        <input id="prodPrice" type="number" placeholder="Price (PKR)" class="p-4 rounded bg-gray-700">
-        <input id="prodDesc" placeholder="Description" class="p-4 rounded bg-gray-700 col-span-2">
-        <input type="file" id="prodMedia" accept="image/*,video/*" class="p-4 bg-gray-700 col-span-2">
-      </div>
-      <button onclick="addOrEditProduct()" class="mt-4 w-full bg-green-600 py-4 rounded font-bold">Save Product</button>
-      <div id="productList" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8"></div>
-    </div>
-
-    <!-- Banner Management -->
-    <div class="bg-gray-800 rounded-2xl p-8">
-      <h2 class="text-3xl font-bold mb-6">Add/Edit Banner</h2>
-      <input id="bannerText" placeholder="Banner Text" class="p-4 rounded bg-gray-700 w-full mb-4">
-      <input type="file" id="bannerMedia" accept="image/*,video/*" class="p-4 bg-gray-700 w-full mb-4">
-      <button onclick="addOrEditBanner()" class="w-full bg-orange-600 py-4 rounded font-bold">Save Banner</button>
-      <div id="bannerList" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8"></div>
-    </div>
   </div>
 
   <script src="main.js"></script>
   <script>
-    function checkLogin() { if(localStorage.getItem("zm_admin_logged") !== "true") location.href = "admin.html"; }
-    function logout() { localStorage.removeItem("zm_admin_logged"); location.href = "admin.html"; }
+    function checkLogin() {
+      if (localStorage.getItem("zm_admin_logged") !== "true") {
+        alert("Please login first!");
+        location.href = "admin.html";
+      }
+    }
+    function logout() {
+      localStorage.removeItem("zm_admin_logged");
+      location.href = "admin.html";
+    }
 
+    // Show Products (اب دکھائی دیں گی!)
+    function loadProducts() {
+      const list = document.getElementById("productList");
+      list.innerHTML = "";
+      if (products.length === 0) {
+        list.innerHTML = "<p class='text-center text-2xl text-gray-500 col-span-4'>No products added yet</p>";
+        return;
+      }
+      products.forEach(p => {
+        list.innerHTML += `
+          <div class="bg-gray-700 rounded-xl p-6 text-center shadow-xl">
+            ${p.image.startsWith('data:video') ? 
+              `<video src="${p.image}" class="w-full h-48 object-cover rounded mb-4" controls></video>` :
+              `<img src="${p.image}" class="w-full h-48 object-cover rounded mb-4">`
+            }
+            <h3 class="text-xl font-bold mb-2">${p.name}</h3>
+            <p class="text-green-400 text-2xl font-bold mb-2">${formatPrice(p.price)}</p>
+            <p class="text-sm text-gray-300 mb-4">${p.desc}</p>
+            <button onclick="deleteProduct(${p.id})" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded w-full font-bold">
+              Delete
+            </button>
+          </div>`;
+      });
+    }
+
+    // Add Product (اب فوراً دکھے گا)
+    function addProduct() {
+      const name = document.getElementById("pName").value.trim();
+      const price = Number(document.getElementById("pPrice").value);
+      const desc = document.getElementById("pDesc").value.trim();
+      const file = document.getElementById("pImage").files[0];
+
+      if (!name || !price) {
+        alert("Name and Price are required!");
+        return;
+      }
+
+      if (file) {
+        handleImageUpload({target: {files: [file]}}, (mediaData) => {
+          const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+          products.push({id: newId, name, price, image: mediaData, desc});
+          saveData();
+          alert("Product Added Successfully!");
+          loadProducts();
+          clearForm();
+        });
+      } else {
+        const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push({id: newId, name, price, image: "https://via.placeholder.com/300", desc});
+        saveData();
+        alert("Product Added (with default image)!");
+        loadProducts();
+        clearForm();
+      }
+    }
+
+    function deleteProduct(id) {
+      if (confirm("Delete this product permanently?")) {
+        products = products.filter(p => p.id !== id);
+        saveData();
+        loadProducts();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("pName").value = "";
+      document.getElementById("pPrice").value = "";
+      document.getElementById("pDesc").value = "";
+      document.getElementById("pImage").value = "";
+    }
+
+    // Orders (پہلے جیسا ہی)
     function loadOrders() {
       const tbody = document.getElementById("orderBody");
-      tbody.innerHTML = orders.slice().reverse().map((o, idx) => {
-        const realIdx = orders.length - 1 - idx;
-        const items = o.items.map(it => `${it.name} x${it.qty}`).join("<br>");
+      tbody.innerHTML = orders.length === 0 ? "<tr><td colspan='9' class='text-center py-10 text-2xl text-gray-500'>No orders yet</td></tr>" : 
+      orders.slice().reverse().map((o, i) => {
+        const realIdx = orders.length - 1 - i;
+        const items = o.items.map(it => `${it.name || "Unknown"} × ${it.qty}`).join("<br>");
         return `
           <tr class="border-b border-gray-600">
-            <td>${orders.length - idx}</td>
+            <td>${orders.length - i}</td>
             <td>${o.date}</td>
             <td>${o.customer.name}</td>
             <td>${o.customer.phone}</td>
-            <td class="text-left">${items}</td>
+            <td>${items}</td>
             <td>${formatPrice(o.total)}</td>
             <td>
-              <select onchange="updateStatus(${realIdx}, this.value)" class="bg-gray-700 rounded p-2">
-                <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
-                <option value="complete" ${o.status==='complete'?'selected':''}>Complete</option>
-              </select>
+              <button onclick="toggleStatus(${realIdx})" class="${o.status==='complete'?'bg-green-600':'bg-yellow-600'} px-6 py-2 rounded">
+                ${o.status==='complete'?'Complete':'Pending'}
+              </button>
             </td>
             <td>
-              <input type="text" value="${o.tracking_id||''}" onchange="updateTracking(${realIdx}, this.value)" class="bg-gray-700 rounded p-2 w-full">
+              <input type="text" value="${o.tracking_id||''}" onchange="saveTracking(${realIdx}, this.value)" class="bg-gray-700 px-4 py-2 rounded w-32">
             </td>
             <td>
               <button onclick="deleteOrder(${realIdx})" class="bg-red-600 px-4 py-2 rounded">Delete</button>
             </td>
           </tr>`;
-      }).join("") || "<tr><td colspan='9' class='py-10 text-2xl text-gray-500'>No orders</td></tr>";
+      }).join("");
     }
 
-    function updateStatus(i, s) { orders[i].status = s; saveData(); alert("Status updated!"); }
-    function updateTracking(i, t) { orders[i].tracking_id = t; saveData(); alert("Tracking ID saved!"); }
+    function toggleStatus(i) { orders[i].status = orders[i].status === "complete" ? "pending" : "complete"; saveData(); loadOrders(); }
+    function saveTracking(i, val) { orders[i].tracking_id = val.trim(); saveData(); }
     function deleteOrder(i) { if(confirm("Delete?")) { orders.splice(i,1); saveData(); loadOrders(); } }
 
-    function loadProducts() {
-      document.getElementById("productList").innerHTML = products.map(p => `
-        <div class="bg-gray-700 p-4 rounded">
-          <img src="${p.image}" class="w-full h-32 object-cover mb-2">
-          <h3 class="font-bold">${p.name}</h3>
-          <p>${formatPrice(p.price)}</p>
-          <p class="text-sm">${p.desc}</p>
-          <button onclick="editProduct(${p.id})" class="bg-blue-600 px-4 py-2 rounded mt-2">Edit</button>
-          <button onclick="deleteProduct(${p.id})" class="bg-red-600 px-4 py-2 rounded mt-2">Delete</button>
-        </div>
-      `).join("") || "<p>No products</p>";
+    function exportToExcel() {
+      if(orders.length===0) return alert("No orders!");
+      let csv = "No,Date,Name,Phone,Items,Total,Status,Tracking\n";
+      orders.forEach((o,i) => {
+        const items = o.items.map(it => `${it.name} x${it.qty}`).join(" | ");
+        csv += `${i+1},"${o.date}","${o.customer.name}","${o.customer.phone}","${items}","${o.total}","${o.status}","${o.tracking_id||''}"\n`;
+      });
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ZentroMall_Orders.csv";
+      link.click();
     }
 
-    function addOrEditProduct() {
-      const name = document.getElementById("prodName").value.trim();
-      const price = Number(document.getElementById("prodPrice").value);
-      const desc = document.getElementById("prodDesc").value.trim();
-      const file = document.getElementById("prodMedia").files[0];
-
-      if (!name || !price) return alert("Name and price required!");
-      const id = document.getElementById("prodId")?.value || Date.now();
-
-      if(file) {
-        handleImageUpload({target: {files: [file]}}, (media) => {
-          updateProduct(id, name, price, desc, media);
-        });
-      } else {
-        updateProduct(id, name, price, desc);
-      }
-    }
-
-    function updateProduct(id, name, price, desc, media) {
-      const index = products.findIndex(p => p.id === id);
-      if (index > -1) {
-        products[index].name = name;
-        products[index].price = price;
-        products[index].desc = desc;
-        if(media) products[index].image = media;
-        alert("Product updated!");
-      } else {
-        products.push({id, name, price, image: media, desc});
-        alert("Product added!");
-      }
-      saveData();
-      loadProducts();
-      clearProductForm();
-    }
-
-    function editProduct(id) {
-      const p = products.find(x => x.id === id);
-      document.getElementById("prodName").value = p.name;
-      document.getElementById("prodPrice").value = p.price;
-      document.getElementById("prodDesc").value = p.desc;
-      // For image/video, user can re-upload if needed
-      document.getElementById("prodId") = id; // Hidden, but use variable if needed
-    }
-
-    function deleteProduct(id) { if(confirm("Delete product?")) { products = products.filter(x => x.id !== id); saveData(); loadProducts(); } }
-
-    function clearProductForm() {
-      document.getElementById("prodName").value = "";
-      document.getElementById("prodPrice").value = "";
-      document.getElementById("prodDesc").value = "";
-      document.getElementById("prodMedia").value = "";
-    }
-
+    // Banners (پہلے جیسا)
+    let banners = JSON.parse(localStorage.getItem("zm_banners") || "[]");
     function loadBanners() {
       document.getElementById("bannerList").innerHTML = banners.map((t,i) => `
         <div class="bg-gray-700 p-4 rounded flex justify-between">
           <span>${t}</span>
-          <button onclick="banners.splice(i,1);localStorage.setItem('zm_banners',JSON.stringify(banners));loadBanners()" class="text-red-400">Delete</button>
+          <button onclick="banners.splice(i,1); localStorage.setItem('zm_banners',JSON.stringify(banners)); loadBanners()" class="text-red-400">Delete</button>
         </div>
-      `).join("") || "<p class='text-gray-500'>No banner added</p>";
+      `).join("") || "<p class='text-gray-500'>No banner</p>";
     }
-    function addOrEditBanner() {
-      const text = document.getElementById("bannerText").value.trim();
-      const file = document.getElementById("bannerMedia").files[0];
-      if(!text) return alert("Banner text required!");
-      if(file) {
-        handleImageUpload({target: {files: [file]}}, (media) => {
-          banners.push({text, media});
-          localStorage.setItem("zm_banners", JSON.stringify(banners));
-          loadBanners();
-        });
-      } else {
-        banners.push({text, media: ""});
-        localStorage.setItem("zm_banners", JSON.stringify(banners));
-        loadBanners();
-      }
-      document.getElementById("bannerText").value = "";
-      document.getElementById("bannerMedia").value = "";
+    function addBanner() {
+      const t = document.getElementById("bannerText").value.trim();
+      if(t){ banners.push(t); localStorage.setItem("zm_banners", JSON.stringify(banners)); loadBanners(); document.getElementById("bannerText").value=""; }
     }
   </script>
 </body>
