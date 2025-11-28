@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
-  <meta charset="UTF-8"><title>Cart – ZentroMall</title>
-  <link rel="icon" href="logo.png"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="View and manage your cart at ZentroMall." />
+  <title>Cart – ZentroMall</title>
+  <link rel="icon" href="logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
-  <header class="bg-indigo-800 dark:bg-indigo-950 shadow-xl sticky top-0 z-50">
+  <header role="banner" class="bg-indigo-800 dark:bg-indigo-950 shadow-xl sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html"><img src="logo.png" class="h-14"></a>
-      <a href="checkout.html" class="bg-yellow-500 text-black px-8 py-4 rounded-full text-xl font-bold">Checkout →</a>
+      <a href="index.html"><img src="logo.png" alt="ZentroMall Logo" class="h-14 rounded-lg" /></a>
+      <a href="checkout.html" class="bg-yellow-500 text-black px-8 py-4 rounded-full text-xl font-bold" aria-label="Proceed to Checkout">Checkout →</a>
     </div>
   </header>
 
@@ -24,33 +28,33 @@
     function renderCart() {
       const itemsDiv = document.getElementById("cart-items");
       let total = 0;
-      itemsDiv.innerHTML = "";
-      cart.forEach(item => {
+      itemsDiv.innerHTML = cart.map(item => {
         const p = products.find(x => x.id === item.id);
         total += p.price * item.qty;
-        itemsDiv.innerHTML += `
+        return `
           <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl mb-6 flex items-center justify-between">
-            <img src="${p.image}" class="w-24 h-24 object-cover rounded">
+            <img src="${p.image}" alt="${p.name}" class="w-24 h-24 object-cover rounded" />
             <div class="flex-1 mx-6">
               <h3 class="text-2xl font-bold">${p.name}</h3>
-              <p>₹${p.price.toLocaleString()} × ${item.qty}</p>
+              <p class="text-gray-600 dark:text-gray-300">₹${p.price.toLocaleString()} × ${item.qty}</p>
             </div>
             <div class="flex items-center gap-4">
-              <button onclick="changeQty(${p.id}, -1)" class="bg-gray-600 text-white w-10 h-10 rounded-full">-</button>
+              <button onclick="changeQty(${p.id}, -1)" class="bg-gray-600 text-white w-10 h-10 rounded-full" aria-label="Decrease quantity">-</button>
               <span class="text-2xl">${item.qty}</span>
-              <button onclick="changeQty(${p.id}, 1)" class="bg-indigo-600 text-white w-10 h-10 rounded-full">+</button>
-              <button onclick="removeFromCart(${p.id})" class="bg-red-600 text-white px-6 py-3 rounded ml-4">Remove</button>
+              <button onclick="changeQty(${p.id}, 1)" class="bg-indigo-600 text-white w-10 h-10 rounded-full" aria-label="Increase quantity">+</button>
+              <button onclick="removeFromCart(${p.id})" class="bg-red-600 text-white px-6 py-3 rounded ml-4" aria-label="Remove item">Remove</button>
             </div>
           </div>`;
-      });
+      }).join("") || "<p class='text-center text-3xl'>Cart is empty</p>";
       document.getElementById("total").textContent = total.toLocaleString();
-      if (cart.length === 0) itemsDiv.innerHTML = "<p class='text-center text-3xl'>Cart is empty</p>";
     }
     function changeQty(id, delta) {
       const item = cart.find(x => x.id === id);
-      item.qty += delta;
-      if (item.qty <= 0) removeFromCart(id);
-      else { saveData(); renderCart(); updateCartCount(); }
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) removeFromCart(id);
+        else { saveData(); renderCart(); updateCartCount(); }
+      }
     }
     function removeFromCart(id) {
       cart = cart.filter(x => x.id !== id);
