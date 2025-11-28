@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تمام پروڈکٹس – ZentroMall</title>
+  <title>All Products – ZentroMall</title>
   <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -17,10 +17,10 @@
         <h1 class="text-4xl font-extrabold text-yellow-400 drop-shadow-lg">ZentroMall</h1>
       </a>
       <div class="flex gap-8 items-center text-xl">
-        <a href="index.html" class="hover:text-yellow-400">ہوم</a>
-        <a href="cart.html" class="hover:text-yellow-400">کارٹ (<span id="cart-count">0</span>)</a>
-        <a href="my-orders.html" class="hover:text-yellow-400">میرے آرڈرز</a>
-        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">ایڈمن</a>
+        <a href="index.html" class="hover:text-yellow-400">Home</a>
+        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
+        <a href="my-orders.html" class="hover:text-yellow-400">My Orders</a>
+        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">Admin</a>
       </div>
     </div>
   </nav>
@@ -28,25 +28,25 @@
   <!-- Search + Filters -->
   <div class="max-w-7xl mx-auto px-6 py-10">
     <h1 class="text-6xl font-extrabold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-500">
-      تمام پروڈکٹس
+      All Products
     </h1>
 
     <div class="bg-gray-800 rounded-3xl p-8 shadow-2xl mb-12">
-      <input type="text" id="search" placeholder="پروڈکٹ سرچ کریں..." 
+      <input type="text" id="search" placeholder="Search products..." 
              class="w-full p-6 rounded-xl bg-gray-700 text-xl text-center font-bold placeholder-gray-400 mb-6">
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <input type="number" id="minprice" placeholder="کم سے کم قیمت" class="p-5 rounded-xl bg-gray-700 text-center">
-        <input type="number" id="maxprice" placeholder="زیادہ سے زیادہ قیمت" class="p-5 rounded-xl bg-gray-700 text-center">
+        <input type="number" id="minprice" placeholder="Min Price" class="p-5 rounded-xl bg-gray-700 text-center">
+        <input type="number" id="maxprice" placeholder="Max Price" class="p-5 rounded-xl bg-gray-700 text-center">
         <select id="sort" class="p-5 rounded-xl bg-gray-700 text-xl">
-          <option value="">ترتیب دیں</option>
-          <option value="low">سستا پہلے</option>
-          <option value="high">مہنگا پہلے</option>
-          <option value="new">نیا پہلے</option>
+          <option value="">Sort By</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="new">Newest First</option>
         </select>
         <button onclick="applyFilters()" 
                 class="bg-gradient-to-r from-green-600 to-emerald-600 py-5 rounded-xl text-2xl font-bold hover:scale-105 transition shadow-lg">
-          فلٹر لگائیں
+          Apply Filters
         </button>
       </div>
     </div>
@@ -60,7 +60,7 @@
     function renderProducts(list = products) {
       const grid = document.getElementById("product-grid");
       if (list.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-4xl text-gray-500 py-20">کوئی پروڈکٹ نہیں ملا</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-4xl text-gray-500 py-20">No products found</p>`;
         return;
       }
 
@@ -77,14 +77,14 @@
             <p class="text-3xl font-extrabold text-green-600 mb-4">${formatPrice(p.price)}</p>
             <button onclick="event.preventDefault(); addToCart(${p.id})" 
                     class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition">
-              کارٹ میں ڈالیں
+              Add to Cart
             </button>
           </div>
         </a>
       `).join("");
     }
 
-    // سرچ فنکشن
+    // Search function
     document.getElementById("search").addEventListener("input", function() {
       const term = this.value.toLowerCase();
       const filtered = products.filter(p => 
@@ -94,7 +94,7 @@
       renderProducts(filtered);
     });
 
-    // فلٹر فنکشن
+    // Filter function
     function applyFilters() {
       let filtered = [...products];
 
@@ -111,7 +111,7 @@
       renderProducts(filtered);
     }
 
-    // پہلے سے لوڈ کرو
+    // Initial load
     renderProducts();
     updateCartCount();
   </script>
