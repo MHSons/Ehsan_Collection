@@ -1,61 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Login - ZentroMall</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    .glow { box-shadow: 0 0 30px rgba(129, 40, 255, 0.6); }
-    .input-focus:focus { outline: none; ring: 4px solid #818cf8; }
+    .glow {
+      box-shadow: 0 0 30px rgba(129, 40, 255, 0.6);
+    }
+    .input-focus:focus {
+      outline: none;
+      box-shadow: 0 0 10px #6366f1;
+      border-color: #6366f1;
+    }
   </style>
 </head>
+
 <body class="bg-gradient-to-br from-purple-900 via-indigo-900 to-black min-h-screen flex items-center justify-center p-6">
 
   <div class="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full glow">
+    
+    <!-- Header -->
     <div class="bg-gradient-to-r from-indigo-600 to-purple-700 p-10 text-center">
       <h1 class="text-5xl font-extrabold text-white drop-shadow-lg">ZentroMall</h1>
       <p class="text-xl text-yellow-300 mt-3 font-semibold">ADMIN PANEL</p>
     </div>
 
+    <!-- Login Block -->
     <div class="p-10">
       <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Welcome Back!</h2>
-      
-      <div class="space-y-6">
-        <input type="password" id="pass" placeholder="Enter Admin Password" 
-               class="w-full p-5 rounded-xl border-2 border-gray-300 text-xl focus:border-indigo-600 transition input-focus">
 
-        <button onclick="login()" 
-                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-6 rounded-xl text-2xl font-bold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition duration-300 shadow-lg">
+      <div class="space-y-6">
+
+        <!-- Password Input -->
+        <input 
+          type="password"
+          id="pass"
+          placeholder="Enter Admin Password"
+          class="w-full p-5 rounded-xl border-2 border-gray-300 text-xl transition input-focus"
+          autocomplete="off"
+        />
+
+        <!-- Login Button -->
+        <button
+          id="loginBtn"
+          onclick="login()"
+          class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-6 rounded-xl text-2xl font-bold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition duration-300 shadow-lg"
+        >
           LOGIN SECURELY
         </button>
 
+        <!-- Info Box -->
         <div class="text-center text-sm text-gray-600 mt-6">
           <p>Default Password: <code class="bg-gray-200 px-2 py-1 rounded">asad123</code></p>
           <p class="mt-2">You can change it from Admin Panel after login</p>
         </div>
       </div>
     </div>
+
   </div>
 
   <script>
-    // پہلی دفعہ پاس ورڈ سیٹ کرو اگر نہ ہو
+    // ---------------------------
+    // SET DEFAULT ADMIN PASSWORD
+    // ---------------------------
     if (!localStorage.getItem("zm_admin_pass")) {
       localStorage.setItem("zm_admin_pass", "asad123");
     }
 
+    // ---------------------------
+    // LOGIN FUNCTION
+    // ---------------------------
     function login() {
       const entered = document.getElementById("pass").value.trim();
       const correct = localStorage.getItem("zm_admin_pass");
+      const btn = document.getElementById("loginBtn");
 
       if (entered === correct) {
         localStorage.setItem("zm_admin_logged", "true");
-        // تھوڑا ڈرامائی اثر
-        document.querySelector("button").innerHTML = "Success! Redirecting...";
-        document.querySelector("button").classList.add("bg-green-500");
+
+        btn.innerText = "Success! Redirecting...";
+        btn.classList.remove("from-green-600", "to-emerald-600");
+        btn.classList.add("bg-green-500");
+        btn.disabled = true;
+
         setTimeout(() => {
           location.href = "admin-panel.html";
         }, 800);
+
       } else {
         alert("Wrong Password! Try again.");
         document.getElementById("pass").value = "";
@@ -63,10 +98,13 @@
       }
     }
 
-    // Enter دبانے سے بھی لاگ ان ہو جائے
-    document.getElementById("pass").addEventListener("keyup", function(e) {
+    // ---------------------------
+    // ENTER KEY PRESS LOGIN
+    // ---------------------------
+    document.getElementById("pass").addEventListener("keyup", e => {
       if (e.key === "Enter") login();
     });
   </script>
+
 </body>
 </html>
