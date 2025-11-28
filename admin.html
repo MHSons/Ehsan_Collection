@@ -1,65 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur" dir="ltr">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin Panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login – ZentroMall Pakistan</title>
+  <link rel="icon" href="logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen" onload="if(localStorage.getItem('zm_admin_logged')!=='true') location.href='admin.html'">
-<div class="max-w-7xl mx-auto p-8">
-  <div class="flex justify-between items-center mb-10">
-    <h1 class="text-5xl font-bold text-yellow-400">ADMIN PANEL</h1>
-    <button onclick="localStorage.removeItem('zm_admin_logged'); location.href='admin.html'" class="bg-red-600 px-8 py-4 rounded-xl text-xl">Logout</button>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center">
+    <img src="logo.png" alt="ZentroMall Logo" class="h-24 mx-auto mb-6 rounded-xl" />
+
+    <h1 class="text-4xl font-bold text-indigo-800 mb-2">ADMIN PANEL</h1>
+    <p class="text-gray-600 mb-8">صرف ایڈمن کے لیے</p>
+
+    <div class="space-y-6">
+      <input 
+        type="password" 
+        id="adminPassword" 
+        placeholder="پاس ورڈ درج کریں" 
+        class="w-full p-5 text-xl text-center rounded-xl border-2 border-indigo-300 focus:border-indigo-600 focus:outline-none"
+        autocomplete="off"
+      />
+
+      <button 
+        onclick="loginAsAdmin()" 
+        class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold text-2xl py-5 rounded-xl shadow-lg transform hover:scale-105 transition">
+        لاگ ان کریں
+      </button>
+    </div>
+
+    <p class="mt-6 text-sm text-gray-500">
+      ڈیفالٹ پاس ورڈ: <span class="font-bold text-indigo-600">asad123</span><br>
+      <small class="text-xs">ایڈمن پینل میں جا کر پاس ورڈ بدل سکتے ہیں</small>
+    </p>
   </div>
 
-  <!-- Add Product -->
-  <div class="bg-gray-800 p-8 rounded-2xl mb-12">
-    <h2 class="text-3xl mb-6 text-green-400">نیا پروڈکٹ شامل کریں</h2>
-    <input id="pname" placeholder="پروڈکٹ کا نام" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input id="pprice" type="number" placeholder="قیمت (PKR)" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input id="pdesc" placeholder="تفصیل" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input type="file" id="pimage" accept="image/*" class="w-full p-4 mb-6 bg-gray-700 text-white"><br>
-    <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-700 py-5 rounded-xl text-2xl font-bold">
-      پروڈکٹ شامل کریں
-    </button>
-  </div>
+  <script src="main.js"></script>
+  <script>
+    function loginAsAdmin() {
+      const inputPass = document.getElementById("adminPassword").value.trim();
+      
+      // Real password jo localStorage mein save hai
+      const realPass = localStorage.getItem("zm_admin_pass") || "asad123";
 
-  <h2 class="text-3xl mb-6">تمام پروڈکٹس</h2>
-  <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-</div>
+      if (inputPass === realPass) {
+        localStorage.setItem("zm_admin_logged", "true");
+        // Success sound (optional)
+        const audio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-confirmation-tone-2355.mp3");
+        audio.play().catch(() => {});
+        
+        // Redirect to real admin panel
+        window.location.href = "admin-panel.html";
+      } else {
+        alert("غلط پاس ورڈ!");
+        document.getElementById("adminPassword").value = "";
+        document.getElementById("adminPassword").focus();
+      }
+    }
 
-<script src="main.js"></script>
-<script>
-function addProduct() {
-  const name = document.getElementById("pname").value.trim();
-  const price = parseInt(document.getElementById("pprice").value);
-  const desc = document.getElementById("pdesc").value.trim();
-  const fileInput = document.getElementById("pimage");
+    // Enter key se bhi login ho jaye
+    document.getElementById("adminPassword").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") loginAsAdmin();
+    });
+  </script>
 
-  if (!name || !price || !fileInput.files[0]) {
-    alert("نام، قیمت اور تصویر لازمی ہیں!");
-    return;
-  }
-
-  handleImageUpload({target: {files: [fileInput.files[0]]}}, (base64) => {
-    const newId = products.length ? Math.max(...products.map(p=>p.id)) + 1 : 1;
-    products.push({id: newId, name, price, image: base64, desc, category: "mobile"});
-    saveData();
-    alert("پروڈکٹ شامل ہو گئی!");
-    location.reload();
-  });
-}
-
-// Show Products with Delete
-document.getElementById("product-list").innerHTML = products.map(p => `
-  <div class="bg-gray-800 p-6 rounded-2xl">
-    <img src="${p.image}" alt="${p.name}" class="w-full h-64 object-cover rounded">
-    <h3 class="text-2xl font-bold mt-4">${p.name}</h3>
-    <p class="text-green-400 text-3xl my-2">${formatPrice(p.price)}</p>
-    <p class="text-gray-400 text-sm">${p.desc}</p>
-    <button onclick="if(confirm('Delete?')){products=products.filter(x=>x.id!==${p.id});saveData();location.reload();}" 
-            class="bg-red-600 w-full mt-4 py-3 rounded text-xl">ڈیلیٹ کریں</button>
-  </div>`).join("");
-</script>
 </body>
 </html>
