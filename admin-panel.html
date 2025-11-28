@@ -1,65 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur" dir="ltr">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – ZentroMall Pakistan</title>
+  <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen" onload="if(localStorage.getItem('zm_admin_logged')!=='true') location.href='admin.html'">
-<div class="max-w-7xl mx-auto p-8">
-  <div class="flex justify-between items-center mb-10">
-    <h1 class="text-5xl font-bold text-yellow-400">ADMIN PANEL</h1>
-    <button onclick="localStorage.removeItem('zm_admin_logged'); location.href='admin.html'" class="bg-red-600 px-8 py-4 rounded-xl text-xl">Logout</button>
-  </div>
+  <style>
+    .table-row:hover { background: #1e293b; }
+    .scrollbar::-webkit-scrollbar { height: 8px; }
+    .scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+  </style>
+head>
+<body class="bg-gray-900 text-white min-h-screen" onload="checkLogin()">
 
-  <!-- Add Product -->
-  <div class="bg-gray-800 p-8 rounded-2xl mb-12">
-    <h2 class="text-3xl mb-6 text-green-400">نیا پروڈکٹ شامل کریں</h2>
-    <input id="pname" placeholder="پروڈکٹ کا نام" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input id="pprice" type="number" placeholder="قیمت (PKR)" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input id="pdesc" placeholder="تفصیل" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
-    <input type="file" id="pimage" accept="image/*" class="w-full p-4 mb-6 bg-gray-700 text-white"><br>
-    <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-700 py-5 rounded-xl text-2xl font-bold">
-      پروڈکٹ شامل کریں
-    </button>
-  </div>
+  <div class="max-w-7xl mx-auto p-6">
 
-  <h2 class="text-3xl mb-6">تمام پروڈکٹس</h2>
-  <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-</div>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-10">
+      <h1 class="text-5xl font-bold text-yellow-400">ADMIN PANELh1>
+      <div class="flex gap-4">
+        <button onclick="changeAdminPassword()" class="bg-orange-600 px-6 py-3 rounded-xl">پاس ورڈ بدلیںbutton>
+        <button onclick="logout()" class="bg-red-600 px-8 py-3 rounded-xl text-xl">لاگ آؤٹbutton>
+      div>
+    div>
 
-<script src="main.js"></script>
-<script>
-function addProduct() {
-  const name = document.getElementById("pname").value.trim();
-  const price = parseInt(document.getElementById("pprice").value);
-  const desc = document.getElementById("pdesc").value.trim();
-  const fileInput = document.getElementById("pimage");
+    <!-- Add Product Section -->
+    <div class="bg-gray-800 rounded-2xl p-8 mb-10">
+      <h2 class="text-3xl font-bold text-green-400 mb-6">نیا پروڈکٹ شامل کریںh2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <input id="pname" placeholder="پروڈکٹ نام" class="p-4 rounded bg-gray-700">
+        <input id="pprice" type="number" placeholder="قیمت (PKR)" class="p-4 rounded bg-gray-700">
+        <input id="pdesc" placeholder="تفصیل" class="p-4 rounded bg-gray-700">
+        <input type="file" id="pimage" accept="image/*" class="p-4 bg-gray-700 text-white">
+      div>
+      <button onclick="addProduct()" class="mt-6 w-full bg-green-600 hover:bg-green-700 py-5 rounded-xl text-2xl font-bold">
+        پروڈکٹ شامل کریں
+      button>
+    div>
 
-  if (!name || !price || !fileInput.files[0]) {
-    alert("نام، قیمت اور تصویر لازمی ہیں!");
-    return;
-  }
+    <!-- Full Order History Table -->
+    <div class="bg-gray-800 rounded-2xl p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-4xl font-bold text-cyan-400">تمام آرڈرز کی تاریخ (${orders.length})h2>
+        <input type="text" id="searchOrder" placeholder="نام، فون یا پروڈکٹ سرچ کریں..." 
+               class="p-4 rounded-lg bg-gray-700 w-96" onkeyup="searchOrders()">
+      div>
 
-  handleImageUpload({target: {files: [fileInput.files[0]]}}, (base64) => {
-    const newId = products.length ? Math.max(...products.map(p=>p.id)) + 1 : 1;
-    products.push({id: newId, name, price, image: base64, desc, category: "mobile"});
-    saveData();
-    alert("پروڈکٹ شامل ہو گئی!");
-    location.reload();
-  });
-}
+      <div class="overflow-x-auto scrollbar">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="p-4">تاریخ و وقتth>
+              <th class="p-4">گاہک کا نامth>
+              <th class="p-4">فون نمبرth>
+              <th class="p-4">ایڈریسth>
+              <th class="p-4">آرڈر آئٹمزth>
+              <th class="p-4">کل رقمth>
+              <th class="p-4">ایکشنth>
+            tr>
+          thead>
+          <tbody id="orderTableBody">
+            <!-- Orders yahan load honge -->
+          tbody>
+        table>
+      div>
+    div>
 
-// Show Products with Delete
-document.getElementById("product-list").innerHTML = products.map(p => `
-  <div class="bg-gray-800 p-6 rounded-2xl">
-    <img src="${p.image}" alt="${p.name}" class="w-full h-64 object-cover rounded">
-    <h3 class="text-2xl font-bold mt-4">${p.name}</h3>
-    <p class="text-green-400 text-3xl my-2">${formatPrice(p.price)}</p>
-    <p class="text-gray-400 text-sm">${p.desc}</p>
-    <button onclick="if(confirm('Delete?')){products=products.filter(x=>x.id!==${p.id});saveData();location.reload();}" 
-            class="bg-red-600 w-full mt-4 py-3 rounded text-xl">ڈیلیٹ کریں</button>
-  </div>`).join("");
-</script>
-</body>
-</html>
+  div>
+
+  <script src="main.js"></script>
+  <script>
+    function checkLogin() {
+      if (localStorage.getItem("zm_admin_logged") !== "true") {
+        alert("براہ کرم پہلے لاگ ان کریں!");
+        location.href = "admin.html";
+      } else {
+        loadOrderHistory();
+      }
+    }
+
+    function logout() {
+      if(confirm("لاگ آؤٹ کرنا چاہتے ہیں؟")) {
+        localStorage.removeItem("zm_admin_logged");
+        location.href = "admin.html";
+      }
+    }
+
+    function changeAdminPassword() {
+      const newPass = prompt("نیا ایڈمن پاس ورڈ درج کریں:", "");
+      if(newPass && newPass.length >= 4) {
+        localStorage.setItem("zm_admin_pass", newPass);
+        alert("پاس ورڈ کامیابی سے بدل گیا!");
+      } else if(newPass) {
+        alert("پاس ورڈ کم از کم 4 حروف کا ہونا چاہیے");
+      }
+    }
+
+    function addProduct() {
+      const name = document.getElementById("pname").value.trim();
+      const price = parseInt(document.getElementById("pprice").value);
+      const desc = document.getElementById("pdesc").value.trim();
+      const file = document.getElementById("pimage").files[0];
+
+      if(!name || !price || !file) return alert("تمام فیلڈز بھریں + تصویر منتخب کریں");
+
+      handleImageUpload({target:{files:[file]}}, (base64) => {
+        const newId = products.length ? Math.max(...products.map(p=>p.id)) + 1 : 1;
+        products.push({id:newId, name, price, image:base64, desc, category:"general"});
+        saveData();
+        alert("پروڈکٹ شامل ہو گئی!");
+        location.reload();
+      });
+    }
+
+    function loadOrderHistory() {
+      const tbody = document.getElementById("orderTableBody");
+      if(orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-2xl text-gray-500">کوئی آرڈر نہیں ملاtd>tr>`;
+        return;
+      }
+
+      // Latest order top pe
+      const sortedOrders = orders.slice().reverse();
+
+      tbody.innerHTML = sortedOrders.map((order, index) => {
+        const itemsText = order.items.map(it => {
+          const p = products.find(x => x.id === it.id);
+          return `${p.name} × ${it.qty}`;
+        }).join(", ");
+
+        return `
+          <tr class="border-b border-gray-700 table-row">
+            <td class="p-4">${order.date}td>
+            <td class="p-4 font-bold text-green-400">${order.customer.name}td>
+            <td class="p-4">${order.customer.phone}td>
+            <td class="p-4 text-sm max-w-xs truncate">${order.customer.address}td>
+            <td class="p-4 text-sm">${itemsText}td>
+            <td class="p-4 text-2xl font-bold text-yellow-400">${formatPrice(order.total)}td>
+            <td class="p-4">
+              <button onclick="deleteOrder(${orders.length-1-index})" 
+                      class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg">
+                ڈیلیٹ
+              button>
+            td>
+          tr>`;
+      }).join("");
+    }
+
+    function deleteOrder(index) {
+      if(confirm("یہ آرڈر مکمل حذف کر دیں؟")) {
+        orders.splice(index, 1);
+        saveData();
+        loadOrderHistory();
+      }
+    }
+
+    function searchOrders() {
+      const term = document.getElementById("searchOrder).value.toLowerCase();
+      const rows = document.querySelectorAll("#orderTableBody tr");
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? "" : "none";
+      });
+    }
+
+    // Load orders on start pe
+    loadOrderHistory();
+  script>
+body>
+html>
