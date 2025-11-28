@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Register for a new account at ZentroMall." />
+  <title>Register – ZentroMall</title>
+  <link rel="icon" href="logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-900 to-indigo-900 text-white min-h-screen flex items-center justify-center">
+  <div class="bg-white text-black p-10 rounded-3xl shadow-2xl max-w-md w-full">
+    <img src="logo.png" alt="ZentroMall Logo" class="h-20 mx-auto mb-6" />
+    <h1 class="text-3xl font-bold text-center mb-6">Register</h1>
+    <form onsubmit="register(event)">
+      <input type="text" id="name" placeholder="Full Name" class="w-full p-4 rounded mb-4" required aria-required="true" />
+      <input type="email" id="email" placeholder="Email" class="w-full p-4 rounded mb-4" required aria-required="true" />
+      <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded mb-6" required aria-required="true" />
+      <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-lg text-xl font-bold hover:bg-indigo-700">Register</button>
+    </form>
+    <p class="mt-4 text-center">Already have an account? <a href="login.html" class="text-indigo-600 underline">Login</a></p>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    function register(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const users = JSON.parse(localStorage.getItem("zm_users") || "[]");
+      if (users.find(u => u.email === email)) return alert("Email already registered");
+      users.push({ name, email, password, phone: "" });
+      localStorage.setItem("zm_users", JSON.stringify(users));
+      alert("Registration successful! Please login.");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
