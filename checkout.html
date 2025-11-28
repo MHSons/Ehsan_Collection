@@ -83,9 +83,9 @@
   <script src="main.js"></script>
   <script>
     let discount = 0;
+    const whatsappNumber = "923018067880"; // اپنا نمبر یہاں ڈالیں
 
-    const whatsappNumber = "923018067880"; // ← اپنا نمبر یہاں ڈالیں
-    const form = document.getElementById("checkoutForm");
+    function formatPrice(num) { return "₨" + num.toLocaleString(); }
 
     function renderOrderSummary() {
       const container = document.getElementById("order-items");
@@ -125,79 +125,69 @@
       const subtotalValue = Number(document.getElementById("subtotal").textContent.replace(/[^0-9]/g,''));
       discount = 0;
 
-      if (code === "ZENTRO50") {
-        discount = Math.round(subtotalValue * 0.5);
-        msg.textContent = "🎉 ZENTRO50 Applied! 50% OFF!";
-      } else if (code === "EID100") {
-        discount = 100000;
-        msg.textContent = "🎉 EID100 Applied! ₨100,000 OFF!";
-      } else {
-        msg.textContent = "❌ Invalid Coupon";
-      }
+      if(code === "ZENTRO50") { discount = Math.round(subtotalValue*0.5); msg.textContent="🎉 ZENTRO50 Applied! 50% OFF!"; }
+      else if(code==="EID100"){ discount=100000; msg.textContent="🎉 EID100 Applied! ₨100,000 OFF!"; }
+      else { msg.textContent="❌ Invalid Coupon"; }
 
       renderOrderSummary();
     }
 
-    form.addEventListener("submit", function(e) {
+    document.getElementById("checkoutForm").addEventListener("submit", function(e){
       e.preventDefault();
+      const name=document.getElementById("name").value.trim();
+      let phone=document.getElementById("phone").value.trim();
+      const address=document.getElementById("address").value.trim();
 
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const address = document.getElementById("address").value.trim();
-
-      if (!name || !phone || !address || cart.length === 0) {
+      if(!name || !phone || !address || cart.length===0){
         alert("Please fill all fields and add items to cart!");
         return;
       }
 
-      let total = 0;
-      let msgText = `*New Order from ZentroMall*\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\n*Order Details:*\n`;
+      // Phone validation + add country code if missing
+      phone = phone.replace(/\D/g,''); // remove non-digit
+      if(phone.startsWith("0")) phone = "92" + phone.slice(1);
+      if(!/^\d{12}$/.test(phone)){ alert("Invalid phone number"); return; }
 
-      cart.forEach(item => {
-        const p = products.find(x => x.id === item.id);
-        if (p) {
-          const itemTotal = p.price * item.qty;
-          total += itemTotal;
-          msgText += `• ${p.name} × ${item.qty} = ₨${itemTotal.toLocaleString()}\n`;
+      let total=0;
+      let msgText=`*New Order from ZentroMall*\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\n*Order Details:*\n`;
+      cart.forEach(item=>{
+        const p=products.find(x=>x.id===item.id);
+        if(p){
+          const itemTotal=p.price*item.qty;
+          total+=itemTotal;
+          msgText+=`• ${p.name} × ${item.qty} = ₨${itemTotal.toLocaleString()}\n`;
         }
       });
+      total-=discount;
+      msgText+=`\n*Total Amount: ₨${total.toLocaleString()}*\nCash on Delivery | Fast Shipping\nThank you!`;
 
-      total -= discount;
-      msgText += `\n*Total Amount: ₨${total.toLocaleString()}*\nCash on Delivery | Fast Shipping\nThank you!`;
+      // Open WhatsApp
+      const encoded=encodeURIComponent(msgText);
+      window.open(`https://wa.me/${phone}?text=${encoded}`,"_blank");
 
       // Save order
       orders.push({
-        date: new Date().toLocaleString("en-PK"),
-        customer: {name, phone, address},
-        items: cart.map(c => ({...c, name: products.find(p=>p.id===c.id)?.name})),
-        total,
-        status: "pending",
-        tracking_id: ""
+        date:new Date().toLocaleString("en-PK"),
+        customer:{name,phone,address},
+        items:cart.map(c=>({...c,name:products.find(p=>p.id===c.id)?.name})),
+        total,status:"pending",tracking_id:""
       });
       saveData();
 
       // Clear cart
-      cart = [];
-      localStorage.setItem("zm_cart", "[]");
+      cart=[];
+      localStorage.setItem("zm_cart","[]");
       updateCartCount();
 
-      // Success animation
-      const btn = document.getElementById("submitBtn");
-      btn.innerHTML = "Order Sent! Redirecting...";
+      // Button feedback
+      const btn=document.getElementById("submitBtn");
+      btn.innerHTML="Order Sent! Redirecting...";
       btn.classList.remove("from-green-600","to-emerald-600");
       btn.classList.add("bg-yellow-500","text-black");
 
-      // Send WhatsApp
-      const encoded = encodeURIComponent(msgText);
-      window.open(`https://wa.me/${whatsappNumber}?text=${encoded}`, "_blank");
-
-      setTimeout(() => {
-        alert("Your order has been sent successfully!\nWe'll contact you soon on WhatsApp");
-        location.href = "index.html";
-      }, 1500);
+      setTimeout(()=>location.href="index.html",1500);
     });
 
-    // Initial load
     renderOrderSummary();
   </script>
 </body>
