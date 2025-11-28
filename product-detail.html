@@ -31,18 +31,27 @@
   <script>
     const id = new URLSearchParams(window.location.search).get("id");
     const product = products.find(p => p.id == id);
+    let viewed = JSON.parse(localStorage.getItem("zm_viewed") || "[]");
+    viewed.unshift(id); viewed = [...new Set(viewed)].slice(0, 8);
+    localStorage.setItem("zm_viewed", JSON.stringify(viewed));
     document.getElementById("product-detail").innerHTML = `
-      <img src="${product.image}" alt="${product.name}" class="w-full h-96 object-cover rounded-2xl shadow-xl">
+      <img src="${product.image}" alt="${product.name}" class="w-full h-96 object-cover rounded-2xl shadow-xl hover:scale-105 transition" />
       <div>
         <h2 class="text-4xl font-bold mb-4">${product.name}</h2>
         <p class="text-xl text-gray-600 dark:text-gray-300 mb-4">${product.desc}</p>
         <p class="text-3xl font-bold text-indigo-600 mb-6">₹${product.price.toLocaleString()}</p>
-        <button onclick="addToCart(${product.id})" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-lg mb-4">Add to Cart</button>
+        <div class="flex gap-2 mb-4">
+          <button onclick="addToCart(${product.id})" class="w-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-lg">Add to Cart</button>
+          <button onclick="toggleWishlist(${product.id})" class="w-1/2 bg-red-500 text-white py-4 rounded-lg">❤️ Wishlist</button>
+          <button onclick="buyNow(${product.id})" class="w-full mt-4 bg-green-600 text-white py-4 rounded-lg font-bold">⚡ Buy Now</button>
+        </div>
+        <p class="text-sm text-gray-600 mb-2">🔥 ${Math.floor(Math.random() * 50)} people viewing this</p>
+        <p class="text-sm text-green-600 mb-4">⚡ ${Math.floor(Math.random() * 20)} bought in last hour</p>
         <div class="mt-6">
           <h3 class="text-2xl font-bold mb-2">Reviews</h3>
           <p class="text-gray-600 dark:text-gray-300">No reviews yet. Be the first!</p>
-          <textarea placeholder="Write a review..." class="w-full p-4 mt-2 rounded bg-gray-100 dark:bg-gray-800" rows="4"></textarea>
-          <button class="mt-2 bg-green-600 text-white px-6 py-2 rounded">Submit Review</button>
+          <textarea placeholder="Write a review..." class="w-full p-4 mt-2 rounded bg-gray-100 dark:bg-gray-800" rows="4" aria-label="Write review"></textarea>
+          <button class="mt-2 bg-green-600 text-white px-6 py-2 rounded" aria-label="Submit review">Submit</button>
         </div>
       </div>`;
     updateCartCount();
