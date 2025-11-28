@@ -31,9 +31,9 @@
       if (user) {
         currentUser = user;
         localStorage.setItem("zm_user", JSON.stringify(user));
-        alert("Login successful!");
+        alert(lang === "ur" ? "لاگ ان کامیاب!" : "Login successful!");
         window.location.href = "index.html";
-      } else alert("Invalid credentials");
+      } else alert(lang === "ur" ? "غلط کریڈینشلز" : "Invalid credentials");
     }
   </script>
 </body>
