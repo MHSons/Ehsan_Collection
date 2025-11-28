@@ -1,79 +1,70 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZentroMall – سب کچھ ایک جگہ</title>
+  <title>ZentroMall - Everything You Need</title>
   <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .animate-marquee {
-      display: inline-block;
-      animation: marquee 25s linear infinite;
-    }
+    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
   </style>
 </head>
-<body class="bg-gradient-to-br from-purple-900 to-indigo-900 text-white">
-
-  <!-- فلش سیل بینر (ایڈمن سے کنٹرول) -->
-  <div id="topBanner" class="bg-gradient-to-l from-red-600 to-orange-600 py-3 overflow-hidden text-lg font-bold">
-    <div id="bannerText" class="inline-block animate-marquee px-4"></div>
+<body class="bg-gradient-to-br from-purple-900 to-indigo-900 text-white min-h-screen">
+  <!-- Flash Banner (Admin Controlled) -->
+  <div id="topBanner" class="bg-gradient-to-r from-red-600 to-orange-600 py-3 overflow-hidden text-lg font-bold">
+    <div id="bannerText" class="inline-block animate-marquee px-10"></div>
   </div>
 
-  <!-- نیویگیشن -->
-  <nav class="bg-gray-900 p-4 shadow-2xl sticky top-0 z-50">
+  <!-- Navbar -->
+  <nav class="bg-gray-900 p-6 shadow-2xl sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <div class="flex items-center gap-4">
-        <img src="logo.png" alt="ZentroMall" class="h-12">
-        <h1 class="text-3xl font-bold">ZentroMall</h1>
+        <img src="logo.png" alt="Logo" class="h-12">
+        <h1 class="text-4xl font-bold">ZentroMall</h1>
       </div>
-      <div class="flex gap-6 text-xl">
-        <a href="index.html" class="hover:text-yellow-400">ہوم</a>
-        <a href="products.html" class="hover:text-yellow-400">پروڈکٹس</a>
-        <a href="cart.html" class="hover:text-yellow-400">کارٹ (<span id="cart-count">0</span>)</a>
-        <a href="orders.html" class="hover:text-yellow-400">میرے آرڈرز</a>
-        <a href="admin.html" class="bg-indigo-600 px-4 py-2 rounded">ایڈمن</a>
+      <div class="flex gap-8 text-xl">
+        <a href="index.html" class="hover:text-yellow-400">Home</a>
+        <a href="products.html" class="hover:text-yellow-400">Products</a>
+        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
+        <a href="my-orders.html" class="hover:text-yellow-400">My Orders</a>
+        <a href="admin.html" class="bg-indigo-600 px-6 py-3 rounded-lg">Admin</a>
       </div>
     </div>
   </nav>
 
-  <!-- ہیرو سیکشن -->
-  <div class="text-center py-20">
-    <h1 class="text-6xl font-bold mb-4">ZentroMall میں خوش آمدید</h1>
-    <p class="text-2xl mb-8">بہترین قیمتیں • تیز ڈلیوری • 100% اصلی</p>
-    <a href="products.html" class="bg-yellow-500 text-black px-12 py-6 rounded-full text-3xl font-bold hover:bg-yellow-400">ابھی شاپنگ کریں</a>
+  <!-- Hero -->
+  <div class="text-center py-32">
+    <h1 class="text-7xl font-bold mb-6">Welcome to ZentroMall</h1>
+    <p class="text-3xl mb-10">Best Prices • Fast Delivery • 100% Original</p>
+    <a href="products.html" class="bg-yellow-500 text-black px-16 py-6 rounded-full text-3xl font-bold hover:bg-yellow-400">SHOP NOW</a>
   </div>
 
-  <!-- فیچرڈ پروڈکٹس -->
-  <div class="max-w-7xl mx-auto p-8">
-    <h2 class="text-4xl font-bold text-center mb-10">فیچرڈ پروڈکٹس</h2>
-    <div id="featured" class="grid grid-cols-2 md:grid-cols-4 gap-8"></div>
+  <div class="max-w-7xl mx-auto p-10">
+    <h2 class="text-5xl font-bold text-center mb-12">Featured Products</h2>
+    <div id="featured" class="grid grid-cols-2 md:grid-cols-4 gap-10"></div>
   </div>
 
   <script src="main.js"></script>
   <script>
-    // ٹاپ بینر لوڈ کرو
     const banners = JSON.parse(localStorage.getItem("zm_banners") || "[]");
     if(banners.length > 0){
-      document.getElementById("bannerText").innerHTML = banners.map(t => " " + t + "  |  ").join("");
+      document.getElementById("bannerText").innerHTML = banners.map(t => "   " + t + "   |   ").join("");
     } else {
       document.getElementById("topBanner").style.display = "none";
     }
 
-    // فیچرڈ پروڈکٹس
     document.getElementById("featured").innerHTML = products.slice(0,8).map(p => `
       <div class="bg-white text-black rounded-2xl overflow-hidden shadow-2xl hover:scale-105 transition">
         <img src="${p.image}" class="w-full h-64 object-cover">
         <div class="p-6">
           <h3 class="text-xl font-bold">${p.name}</h3>
           <p class="text-3xl font-bold text-green-600 my-4">${formatPrice(p.price)}</p>
-          <button onclick="addToCart(${p.id})" class="w-full bg-indigo-600 text-white py-3 rounded-lg">کارٹ میں ڈالیں</button>
+          <button onclick="addToCart(${p.id})" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Add to Cart</button>
         </div>
-      </div>`).join("");
+      </div>
+    `).join("");
   </script>
 </body>
 </html>
