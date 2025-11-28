@@ -77,8 +77,7 @@
 
 <script src="main.js"></script>
 <script>
-let discount = 0;
-
+let discount=0;
 function formatPrice(num){ return "₨"+num.toLocaleString(); }
 
 function renderOrderSummary(){
@@ -117,24 +116,20 @@ function applyCoupon(){
   renderOrderSummary();
 }
 
-document.getElementById("checkoutForm").addEventListener("submit", function(e){
+document.getElementById("checkoutForm").addEventListener("submit",function(e){
   e.preventDefault();
   const name=document.getElementById("name").value.trim();
   let phone=document.getElementById("phone").value.trim();
   const address=document.getElementById("address").value.trim();
+  if(!name||!phone||!address||cart.length===0){ alert("Please fill all fields and add items to cart!"); return; }
 
-  if(!name || !phone || !address || cart.length===0){
-    alert("Please fill all fields and add items to cart!");
-    return;
-  }
-
-  // Phone cleanup + country code
   phone=phone.replace(/\D/g,'');
   if(phone.startsWith("0")) phone="92"+phone.slice(1);
   if(!/^\d{12}$/.test(phone)){ alert("Invalid phone number"); return; }
 
   let total=0;
-  let msgText=`*New Order from ZentroMall*\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\n*Order Details:*\n`;
+  let msgText=`*New Order from ZentroMall*\n\n*Customer Details:*\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\n*Order Summary:*\n`;
+
   cart.forEach(item=>{
     const p=products.find(x=>x.id===item.id);
     if(p){
@@ -143,6 +138,11 @@ document.getElementById("checkoutForm").addEventListener("submit", function(e){
       msgText+=`• ${p.name} × ${item.qty} = ₨${itemTotal.toLocaleString()}\n`;
     }
   });
+
+  if(discount>0){
+    msgText+=`\n*Discount Applied: ₨${discount.toLocaleString()}*`;
+  }
+
   total-=discount;
   msgText+=`\n*Total Amount: ₨${total.toLocaleString()}*\nCash on Delivery | Fast Shipping\nThank you!`;
 
@@ -152,12 +152,7 @@ document.getElementById("checkoutForm").addEventListener("submit", function(e){
   window.open(waURL,"_blank");
 
   // Save order
-  orders.push({
-    date:new Date().toLocaleString("en-PK"),
-    customer:{name,phone,address},
-    items:cart.map(c=>({...c,name:products.find(p=>p.id===c.id)?.name})),
-    total,status:"pending",tracking_id:""
-  });
+  orders.push({date:new Date().toLocaleString("en-PK"),customer:{name,phone,address},items:cart.map(c=>({...c,name:products.find(p=>p.id===c.id)?.name})),total,status:"pending",tracking_id:""});
   saveData();
 
   // Clear cart
@@ -165,7 +160,6 @@ document.getElementById("checkoutForm").addEventListener("submit", function(e){
   localStorage.setItem("zm_cart","[]");
   updateCartCount();
 
-  // Button feedback
   const btn=document.getElementById("submitBtn");
   btn.innerHTML="Order Sent! Redirecting...";
   btn.classList.remove("from-green-600","to-emerald-600");
