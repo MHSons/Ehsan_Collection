@@ -1,75 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="ur" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Browse all products at ZentroMall with advanced filters." />
-  <title>All Products – ZentroMall</title>
-  <link rel="icon" href="logo.png" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تمام پروڈکٹس – ZentroMall</title>
+  <link rel="icon" href="logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
-  <header role="banner" class="bg-indigo-800 dark:bg-indigo-950 shadow-xl sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="flex items-center gap-4">
-        <img src="logo.png" alt="ZentroMall Logo" class="h-14 rounded-lg" />
-        <h1 class="text-2xl font-bold">ZentroMall</h1>
-      </a>
-      <nav role="navigation" class="flex gap-6">
-        <a href="index.html" class="hover:text-yellow-400">Home</a>
-        <a href="cart.html" class="hover:text-yellow-400">Cart (<span id="cart-count">0</span>)</a>
-        <a href="admin.html" class="bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">Admin</a>
-      </nav>
-    </div>
-  </header>
+<body class="bg-gradient-to-br from-purple-900 via-indigo-900 to-black text-white min-h-screen">
 
-  <div class="max-w-7xl mx-auto px-4 py-10">
-    <input type="text" id="search" placeholder="Search products..." class="w-full p-4 rounded-lg shadow mb-6" aria-label="Search products" />
-    <div class="flex flex-wrap gap-4 mb-8">
-      <select id="category" class="p-3 rounded border" aria-label="Filter by category">
-        <option value="">All Categories</option>
-        <option value="electronics">Electronics</option>
-        <option value="fashion">Fashion</option>
-      </select>
-      <input type="number" id="minprice" placeholder="Min Price" class="p-3 rounded border" aria-label="Minimum price" />
-      <input type="number" id="maxprice" placeholder="Max Price" class="p-3 rounded border" aria-label="Maximum price" />
-      <button onclick="applyFilters()" class="bg-indigo-600 text-white px-6 py-3 rounded" aria-label="Apply filters">Filter</button>
+  <!-- Navbar -->
+  <nav class="bg-black bg-opacity-90 backdrop-blur-lg p-6 sticky top-0 z-50 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="index.html" class="flex items-center gap-4">
+        <img src="logo.png" alt="ZentroMall" class="h-14 rounded-full shadow-lg">
+        <h1 class="text-4xl font-extrabold text-yellow-400 drop-shadow-lg">ZentroMall</h1>
+      </a>
+      <div class="flex gap-8 items-center text-xl">
+        <a href="index.html" class="hover:text-yellow-400">ہوم</a>
+        <a href="cart.html" class="hover:text-yellow-400">کارٹ (<span id="cart-count">0</span>)</a>
+        <a href="my-orders.html" class="hover:text-yellow-400">میرے آرڈرز</a>
+        <a href="admin.html" class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 rounded-full font-bold shadow-lg">ایڈمن</a>
+      </div>
     </div>
-    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+  </nav>
+
+  <!-- Search + Filters -->
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <h1 class="text-6xl font-extrabold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-pink-500">
+      تمام پروڈکٹس
+    </h1>
+
+    <div class="bg-gray-800 rounded-3xl p-8 shadow-2xl mb-12">
+      <input type="text" id="search" placeholder="پروڈکٹ سرچ کریں..." 
+             class="w-full p-6 rounded-xl bg-gray-700 text-xl text-center font-bold placeholder-gray-400 mb-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <input type="number" id="minprice" placeholder="کم سے کم قیمت" class="p-5 rounded-xl bg-gray-700 text-center">
+        <input type="number" id="maxprice" placeholder="زیادہ سے زیادہ قیمت" class="p-5 rounded-xl bg-gray-700 text-center">
+        <select id="sort" class="p-5 rounded-xl bg-gray-700 text-xl">
+          <option value="">ترتیب دیں</option>
+          <option value="low">سستا پہلے</option>
+          <option value="high">مہنگا پہلے</option>
+          <option value="new">نیا پہلے</option>
+        </select>
+        <button onclick="applyFilters()" 
+                class="bg-gradient-to-r from-green-600 to-emerald-600 py-5 rounded-xl text-2xl font-bold hover:scale-105 transition shadow-lg">
+          فلٹر لگائیں
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"></div>
   </div>
 
   <script src="main.js"></script>
   <script>
-    function renderProducts(list) {
-      document.getElementById("product-grid").innerHTML = list.map(p => `
-        <a href="product-detail.html?id=${p.id}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden hover-grow focus:outline-none focus:ring-2 focus:ring-yellow-400">
-          <img src="${p.image}" alt="${p.name}" class="w-full h-64 object-cover" />
-          <div class="p-6">
-            <h3 class="text-xl font-bold">${p.name}</h3>
-            <p class="text-gray-600 dark:text-gray-300">${p.desc}</p>
-            <p class="text-2xl font-bold text-indigo-600 mt-2">₹${p.price.toLocaleString()}</p>
-            <div class="flex gap-2 mt-2">
-              <button onclick="addToCart(${p.id})" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded-lg">Add to Cart</button>
-              <button onclick="toggleWishlist(${p.id})" class="bg-red-500 text-white py-2 px-3 rounded-lg">❤️</button>
-            </div>
+    function renderProducts(list = products) {
+      const grid = document.getElementById("product-grid");
+      if (list.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-4xl text-gray-500 py-20">کوئی پروڈکٹ نہیں ملا</p>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(p => `
+        <a href="product-detail.html?id=${p.id}" 
+           class="bg-white text-black rounded-3xl overflow-hidden shadow-2xl hover:scale-105 transition duration-300 group">
+          ${p.image.startsWith("data:video")
+            ? `<video src="${p.image}" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500" loop muted playsinline></video>`
+            : `<img src="${p.image}" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500" alt="${p.name}">`
+          }
+          <div class="p-6 text-center">
+            <h3 class="text-xl font-bold mb-2 line-clamp-2">${p.name}</h3>
+            <p class="text-gray-600 text-sm mb-3">${p.desc || ""}</p>
+            <p class="text-3xl font-extrabold text-green-600 mb-4">${formatPrice(p.price)}</p>
+            <button onclick="event.preventDefault(); addToCart(${p.id})" 
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition">
+              کارٹ میں ڈالیں
+            </button>
           </div>
-        </a>`).join("");
+        </a>
+      `).join("");
     }
-    renderProducts(products);
-    document.getElementById("search").addEventListener("input", e => {
-      const term = e.target.value.toLowerCase();
-      renderProducts(products.filter(p => p.name.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term)));
+
+    // سرچ فنکشن
+    document.getElementById("search").addEventListener("input", function() {
+      const term = this.value.toLowerCase();
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(term) || 
+        (p.desc && p.desc.toLowerCase().includes(term))
+      );
+      renderProducts(filtered);
     });
+
+    // فلٹر فنکشن
     function applyFilters() {
       let filtered = [...products];
-      const cat = document.getElementById("category").value;
+
       const min = parseInt(document.getElementById("minprice").value) || 0;
       const max = parseInt(document.getElementById("maxprice").value) || Infinity;
-      if (cat) filtered = filtered.filter(p => p.category === cat);
+      const sort = document.getElementById("sort").value;
+
       filtered = filtered.filter(p => p.price >= min && p.price <= max);
+
+      if (sort === "low") filtered.sort((a,b) => a.price - b.price);
+      if (sort === "high") filtered.sort((a,b) => b.price - a.price);
+      if (sort === "new") filtered.sort((a,b) => b.id - a.id);
+
       renderProducts(filtered);
     }
+
+    // پہلے سے لوڈ کرو
+    renderProducts();
     updateCartCount();
   </script>
 </body>
