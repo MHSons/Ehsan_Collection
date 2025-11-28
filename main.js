@@ -1,7 +1,4 @@
-// ===============================================
-// ZentroMall Pakistan – FINAL main.js (2025)
-// سب فیچرز: PKR, WhatsApp, Admin Panel, Tracking, Status, Excel Export
-// ===============================================
+// ZentroMall Pakistan – FINAL main.js (28 Nov 2025)
 
 let products = JSON.parse(localStorage.getItem("zm_products") || "[]");
 let cart     = JSON.parse(localStorage.getItem("zm_cart") || "[]");
@@ -9,15 +6,12 @@ let orders   = JSON.parse(localStorage.getItem("zm_orders") || "[]");
 let currentUser = JSON.parse(localStorage.getItem("zm_user") || "null");
 let wishlist = JSON.parse(localStorage.getItem("zm_wishlist") || "[]");
 
-// Admin password (پہلی بار چلے تو بن جائے گا)
 if (!localStorage.getItem("zm_admin_pass")) {
-  localStorage.setItem("zm_admin_pass", "asad123"); // ←←←← یہاں اپنا نیا پاس ورڈ رکھ سکتے ہو
+  localStorage.setItem("zm_admin_pass", "asad123");
 }
 
-// تمہارا WhatsApp نمبر (92 کے ساتھ)
-const whatsappNumber = "923001234567"; // ←←←← یہاں اپنا نمبر ڈالو
+const whatsappNumber = "923001234567"; // ←←← اپنا نمبر ڈالو
 
-// ڈیفالٹ پاکستانی پروڈکٹس (اگر کوئی نہ ہو تو)
 if (products.length === 0) {
   products = [
     {id:1, name:"iPhone 15 Pro", price:359999, image:"https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-blacktitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80", desc:"PTA Approved", category:"mobile"},
@@ -27,10 +21,6 @@ if (products.length === 0) {
   ];
   localStorage.setItem("zm_products", JSON.stringify(products));
 }
-
-// =======================
-// فنکشنز
-// =======================
 
 function saveData() {
   localStorage.setItem("zm_products", JSON.stringify(products));
@@ -44,7 +34,6 @@ function formatPrice(price) {
   return "₨" + Number(price).toLocaleString("en-PK");
 }
 
-// WhatsApp 100% ورکنگ (موبائل + ڈیسک ٹاپ دونوں پر)
 function openWhatsAppWithMessage(message) {
   const encoded = encodeURIComponent(message);
   const mobile = `whatsapp://send?phone=${whatsappNumber}&text=${encoded}`;
@@ -53,7 +42,6 @@ function openWhatsAppWithMessage(message) {
   setTimeout(() => window.open(web, '_blank'), 1000);
 }
 
-// کارٹ میں شامل کرنا
 function addToCart(id) {
   const item = cart.find(x => x.id === id);
   if (item) item.qty++; else cart.push({id, qty:1});
@@ -67,23 +55,63 @@ function updateCartCount() {
   document.querySelectorAll("#cart-count").forEach(el => el.textContent = total);
 }
 
-// وش لسٹ
 function toggleWishlist(id) {
   if (wishlist.includes(id)) wishlist = wishlist.filter(x => x !== id);
   else wishlist.push(id);
   saveData();
-  alert(wishlist.includes(id) ? "وش لسٹ میں شامل" : "وش لسٹ سے ہٹا دیا");
 }
 
-// Buy Now
-function buyNow(id) {
-  if (!confirm("COD آرڈر کنفرم کریں؟")) return;
-  const p = products.find(x => x.id === id);
-  const msg = `*فوری آرڈر - ZentroMall*\n\nپروڈکٹ: ${p.name}\nقیمت: ${formatPrice(p.price)}\n\nجلدی کال کریں!`;
+// =======================
+// سب سے اہم: placeOrder فنکشن
+// =======================
+function placeOrder(e) {
+  e.preventDefault();
+
+  const name    = document.getElementById("name")?.value.trim();
+  const phone   = document.getElementById("phone")?.value.trim();
+  const address = document.getElementById("address")?.value.trim();
+
+  if (!name || !phone || !address) {
+    alert("تمام فیلڈز بھریں!");
+    return;
+  }
+
+  let total = 0;
+  let msg = `*نیا آرڈر - ZentroMall*\n\n`;
+  msg += `نام: ${name}\nفون: ${phone}\nایڈریس: ${address}\n\n*آرڈر کی تفصیل:*\n`;
+
+  cart.forEach(item => {
+    const p = products.find(x => x.id === item.id);
+    if (p) {
+      const itemTotal = p.price * item.qty;
+      total += itemTotal;
+      msg += `• ${p.name} × ${item.qty} = ${formatPrice(itemTotal)}\n`;
+    }
+  });
+
+  msg += `\n*کل بل:* ${formatPrice(total)}\n\nشکریہ! ہم جلد رابطہ کریں گے`;
+
+  // آرڈر سیو کرو (status + tracking)
+  orders.push({
+    date: new Date().toLocaleString("en-PK"),
+    items: cart.map(it => ({id: it.id, qty: it.qty, name: products.find(p=>p.id===it.id)?.name || "Unknown"})),
+    total,
+    customer: {name, phone, address},
+    status: "pending",
+    tracking_id: ""
+  });
+
+  saveData();
+
+  // کارٹ خالی کرو
+  cart = [];
+  localStorage.setItem("zm_cart", "[]");
+  updateCartCount();
+
+  // WhatsApp پر بھیجو
   openWhatsAppWithMessage(msg);
 }
 
-// ایڈمن کے لیے تصویر اپ لوڈ (Base64)
 function handleImageUpload(event, callback) {
   const file = event.target.files[0];
   if (!file) return;
@@ -92,51 +120,6 @@ function handleImageUpload(event, callback) {
   reader.readAsDataURL(file);
 }
 
-// =======================
-// چیک آؤٹ فنکشن (checkout.html میں استعمال ہو گا)
-// =======================
-function placeOrder(e) {
-  e.preventDefault();
-  const name    = document.getElementById("name").value.trim();
-  const phone   = document.getElementById("phone").value.trim();
-  const address = document.getElementById("address").value.trim();
-
-  if (!name || !phone || !address) return alert("تمام فیلڈز بھریں!");
-
-  let total = 0;
-  let msg = `*نیا آرڈر - ZentroMall*\n\n`;
-  msg += `نام: ${name}\nفون: ${phone}\nایڈریس: ${address}\n\n*تفصیل:*\n`;
-
-  cart.forEach(item => {
-    const p = products.find(x => x.id === item.id);
-    const itemTotal = p.price * item.qty;
-    total += itemTotal;
-    msg += `• ${p.name} × ${item.qty} = ${formatPrice(itemTotal)}\n`;
-  });
-
-  msg += `\n*کل بل:* ${formatPrice(total)}\n\nشکریہ!`;
-
-  // نیا آرڈر بناتے وقت status اور tracking_id شامل
-  orders.push({
-    date: new Date().toLocaleString("en-PK"),
-    items: cart.map(it => ({id: it.id, qty: it.qty, name: products.find(p=>p.id===it.id).name})),
-    total,
-    customer: {name, phone, address},
-    status: "pending",         // نیا فیچر
-    tracking_id: ""            // نیا فیچر
-  });
-
-  saveData();
-  cart = [];
-  localStorage.setItem("zm_cart", "[]");
-  updateCartCount();
-  openWhatsAppWithMessage(msg);
-}
-
-// =======================
-// پہلے سے چلنے والے فنکشنز
-// =======================
 document.addEventListener("DOMContentLoaded", () => {
   updateCartCount();
-  // اگر کوئی صفحہ loadFeatured() وغیرہ استعمال کر رہا ہے تو وہاں بھی formatPrice() استعمال کرو
 });
