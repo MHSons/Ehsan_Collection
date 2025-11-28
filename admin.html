@@ -2,31 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>Admin Login</title>
+  <title>Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient min-h-screen flex items-center justify-center">
-  <div class="bg-white p-12 rounded-3xl shadow-2xl text-center">
-    <h1 class="text-5xl font-bold text-indigo-800 mb-8">ADMIN LOGIN</h1>
-    <input type="password" id="pass" placeholder="Password" class="w-full p-5 rounded-xl border-2 text-xl mb-6">
-    <button onclick="loginAdmin()" class="w-full bg-green-600 text-white py-5 rounded-xl text-2xl font-bold">
-      Login
-    </button>
-    <p class="mt-4 text-gray-600">Default: asad123</p>
+<body class="bg-gray-900 text-white min-h-screen" onload="if(localStorage.getItem('zm_admin_logged')!=='true') location.href='admin.html'">
+<div class="max-w-7xl mx-auto p-8">
+  <div class="flex justify-between items-center mb-10">
+    <h1 class="text-5xl font-bold text-yellow-400">ADMIN PANEL</h1>
+    <button onclick="localStorage.removeItem('zm_admin_logged'); location.href='admin.html'" class="bg-red-600 px-8 py-4 rounded-xl text-xl">Logout</button>
   </div>
 
-  <script src="main.js"></script>
-  <script>
-    function loginAdmin() {
-      const input = document.getElementById("pass").value;
-      const real = localStorage.getItem("zm_admin_pass") || "asad123";
-      if (input === real) {
-        localStorage.setItem("zm_admin_logged", "true");
-        location.href = "admin-panel.html";
-      } else {
-        alert("غلط پاس ورڈ!");
-      }
-    }
-  </script>
+  <!-- Add Product -->
+  <div class="bg-gray-800 p-8 rounded-2xl mb-12">
+    <h2 class="text-3xl mb-6 text-green-400">نیا پروڈکٹ شامل کریں</h2>
+    <input id="pname" placeholder="پروڈکٹ کا نام" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
+    <input id="pprice" type="number" placeholder="قیمت (PKR)" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
+    <input id="pdesc" placeholder="تفصیل" class="w-full p-4 mb-4 rounded bg-gray-700"><br>
+    <input type="file" id="pimage" accept="image/*" class="w-full p-4 mb-6 bg-gray-700 text-white"><br>
+    <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-700 py-5 rounded-xl text-2xl font-bold">
+      پروڈکٹ شامل کریں
+    </button>
+  </div>
+
+  <h2 class="text-3xl mb-6">تمام پروڈکٹس</h2>
+  <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+</div>
+
+<script src="main.js"></script>
+<script>
+function addProduct() {
+  const name = document.getElementById("pname").value.trim();
+  const price = parseInt(document.getElementById("pprice").value);
+  const desc = document.getElementById("pdesc").value.trim();
+  const fileInput = document.getElementById("pimage");
+
+  if (!name || !price || !fileInput.files[0]) {
+    alert("نام، قیمت اور تصویر لازمی ہیں!");
+    return;
+  }
+
+  handleImageUpload({target: {files: [fileInput.files[0]]}}, (base64) => {
+    const newId = products.length ? Math.max(...products.map(p=>p.id)) + 1 : 1;
+    products.push({id: newId, name, price, image: base64, desc, category: "mobile"});
+    saveData();
+    alert("پروڈکٹ شامل ہو گئی!");
+    location.reload();
+  });
+}
+
+// Show Products with Delete
+document.getElementById("product-list").innerHTML = products.map(p => `
+  <div class="bg-gray-800 p-6 rounded-2xl">
+    <img src="${p.image}" alt="${p.name}" class="w-full h-64 object-cover rounded">
+    <h3 class="text-2xl font-bold mt-4">${p.name}</h3>
+    <p class="text-green-400 text-3xl my-2">${formatPrice(p.price)}</p>
+    <p class="text-gray-400 text-sm">${p.desc}</p>
+    <button onclick="if(confirm('Delete?')){products=products.filter(x=>x.id!==${p.id});saveData();location.reload();}" 
+            class="bg-red-600 w-full mt-4 py-3 rounded text-xl">ڈیلیٹ کریں</button>
+  </div>`).join("");
+</script>
 </body>
 </html>
